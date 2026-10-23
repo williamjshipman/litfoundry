@@ -1,0 +1,62 @@
+schema: spec-driven
+githubCopilot:
+  cloudAgent: true
+
+# Project context: binding constraints from specs/litfoundry_codex_spec_v1_3.md
+# that an agent cannot infer from the code. Applied to every artifact and apply run.
+context: |
+  Source of truth: OpenSpec. The change artifacts in openspec/changes/ and, once archived,
+  the main specs in openspec/specs/ are authoritative. specs/litfoundry_codex_spec_v1_3.md
+  (v1.3) is historical input, kept for background and section references only.
+  - Where v1.3 and an OpenSpec artifact differ, the OpenSpec artifact wins. Do not build
+    v1.3 behaviour that a change replaces, and do not report such differences as defects.
+    The agreed differences are listed in specs/litfoundry_v1_3_openspec_map.md section 3.
+  - Within a change, specs/ wins over design.md, and design.md over tasks.md. If two
+    artifacts conflict, stop and raise it rather than choosing.
+  - Behaviour changes only through an OpenSpec change. Record new decisions in that
+    change's design.md and in docs/decisions.md.
+
+  Mandated stack (do not substitute): Python 3.12+; Flask application factory with
+  Blueprints; Waitress on 127.0.0.1:5080 behind a Caddy TLS reverse proxy; SQLAlchemy 2.x
+  with SQLite (WAL, foreign keys, busy timeout); a central catalog.sqlite plus one
+  project.sqlite per project folder; Flask-Alembic for the catalogue and Alembic's
+  programmatic API for project databases; Flask-JWT-Extended cookies with double-submit
+  CSRF; Argon2id; ldap3 for Active Directory; Vue 3 runtime-only build with render
+  functions (h()), no SFC, Vite, Node build step or in-browser template compiler; Axios;
+  Apache ECharts; Tailwind compiled with the pinned standalone CLI; pytest and Playwright
+  for Python; PyInstaller onedir packaging.
+
+  Licensing: LitFoundry is GPL-3.0. Every bundled dependency must be GPLv3-compatible.
+  No LLM service as a mandatory dependency. Never assume access to paid bibliographic
+  APIs; keep a manual file-import path for every source.
+
+  Platforms: CI runs on Windows, Linux and macOS. Windows x86_64 is the only packaged
+  platform in v1.
+
+  Priorities: MUST items form v1 and live in the m1-* to m7-* changes. SHOULD items live
+  in separate post-v1-* changes; MAY items are non-goals. Do not implement post-v1 work
+  inside a v1 change, but keep interfaces open so it can be added without rework.
+
+  Trust model: the built-in admin is fully trusted and can see and change everything.
+
+  Naming: product name LitFoundry; machine identifier litfoundry (package, CLI, service,
+  LITFOUNDRY_ environment prefix). Never introduce brm, pybrm or appctl identifiers.
+
+rules:
+  proposal:
+    - List the v1.3 sections the change traces to (for traceability only) and the changes it depends on.
+  tasks:
+    - Every task group lands the pytest or Playwright tests and documentation its own work calls for.
+    - Reference the v1.3 section 19 test group a task contributes to, where one applies.
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

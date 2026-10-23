@@ -6,9 +6,15 @@
 **Licence:** GNU General Public License v3 (see `LICENSE`)  
 **Target:** Multi-user, LAN-hosted, cross-platform bibliometric and PRISMA research application
 
+> **Superseded as the source of truth (23 October 2026).**
+> - The OpenSpec artifacts are now authoritative: the changes in `openspec/changes/` and, once archived, the main specs in `openspec/specs/`.
+> - This document is kept as historical input and for its section numbers, which the changes cite for traceability.
+> - Where it differs from OpenSpec, OpenSpec wins. Do not implement behaviour from this document that a change replaces.
+> - The agreed differences are listed in `specs/litfoundry_v1_3_openspec_map.md` §3.
+
 ## 0. Instructions to Codex
 
-Implement this application in an incremental, test-driven series of vertical slices. This document is the product and architectural source of truth. Do not replace the specified stack, omit security controls, generate placeholder bibliometric results, or assume access to paid bibliographic APIs. When an external dependency or API is uncertain, isolate it in an adapter, verify its installed interface, document the finding, and retain an operational manual-import path. Implement migrations and tests with each slice. Do not use an LLM service as a mandatory dependency. All end-user and administrator features must be available through the web GUI and through versioned REST endpoints, except the host-only operations in Section 18.1 (bootstrap token, admin password recovery, migration and full restore execution), which are deliberately CLI-only. In v1, full backups are also CLI-only (Section 0.2).
+Implement this application in an incremental, test-driven series of vertical slices. This document was the product and architectural source of truth until it was superseded by OpenSpec (see the notice above). Do not replace the specified stack, omit security controls, generate placeholder bibliometric results, or assume access to paid bibliographic APIs. When an external dependency or API is uncertain, isolate it in an adapter, verify its installed interface, document the finding, and retain an operational manual-import path. Implement migrations and tests with each slice. Do not use an LLM service as a mandatory dependency. All end-user and administrator features must be available through the web GUI and through versioned REST endpoints, except the host-only operations in Section 18.1 (bootstrap token, admin password recovery, migration and full restore execution), which are deliberately CLI-only. In v1, full backups are also CLI-only (Section 0.2).
 
 **Priority levels:** MUST = release requirement; SHOULD = desirable and testable improvement; MAY = later enhancement.
 
