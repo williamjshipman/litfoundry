@@ -1,0 +1,93 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "litfoundry"
+version = "1.0.0"
+description = "LitFoundry: systematic literature reviews, PRISMA workflows, and bibliometric analysis"
+readme = "README.md"
+license = { text = "GPL-3.0" }
+authors = [
+    { name = "LitFoundry Contributors", email = "litfoundry@example.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.0.0",
+    "waitress>=2.1.0",
+    "sqlalchemy>=2.0.0",
+    "flask-alembic>=1.0.0",
+    "alembic>=1.12.0",
+    "cryptography>=41.0.0",
+    "click>=8.1.0",
+    "pywin32>=305; sys_platform == 'win32'",
+    "ldap3>=2.9.0",
+    "flask-jwt-extended>=4.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-flask>=1.2.0",
+    "pytest-httpx>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-xdist>=3.3.0",
+    "playwright>=1.40.0",
+    "mypy>=1.5.0",
+    "ruff>=0.1.0",
+    "black>=23.9.0",
+    "flask-jwt-extended>=4.5.0",
+    "ldap3>=2.9.0",
+]
+
+[project.scripts]
+litfoundry = "litfoundry.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/litfoundry"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers --tb=short"
+markers = [
+    "unit: unit tests",
+    "integration: integration tests",
+    "e2e: end-to-end tests",
+    "slow: slow-running tests",
+]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+strict_optional = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "D",    # pydocstyle
+]
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["litfoundry"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
