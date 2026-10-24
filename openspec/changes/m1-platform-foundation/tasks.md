@@ -17,7 +17,7 @@
 - [x] 3.2 Implement `litfoundry init`: data root layout, catalogue at the latest revision, and idempotent re-runs. Verify with integration tests for a fresh and a repeated init.
 - [x] 3.3 Apply restrictive permissions: a Windows DACL with inheritance disabled, and POSIX `0700`. Verify with OS-specific tests on each CI runner.
 - [x] 3.4 Refuse UNC and network-filesystem data roots in `init` and `serve`. Verify with unit tests using mocked drive types and mount tables.
-- [ ] 3.5 Implement the path-containment helper (rejecting `..`, absolute user paths and escaping symlinks) and UUID-only naming. Verify with unit tests, including a symlink fixture.
+- [x] 3.5 Implement the path-containment helper (rejecting `..`, absolute user paths and escaping symlinks) and UUID-only naming. Verify with unit tests, including a symlink fixture.
 - [ ] 3.6 Write the configuration reference in `docs/` for Windows, Linux and macOS. Verify that every variable in `.env.example` is documented.
 
 ## 4. Catalogue and secret storage
