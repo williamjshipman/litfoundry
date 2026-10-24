@@ -25,7 +25,7 @@
 - [x] 4.1 Create the catalogue engine (WAL, foreign keys, busy timeout) and the Flask-Alembic baseline revision. Verify that `PRAGMA journal_mode` returns `wal` in a test.
 - [x] 4.2 Implement the master key and session signing key files, AES-GCM encrypt/decrypt with key IDs, and signing-key rotation. Verify with unit tests, including decrypting on a copied data root.
 - [x] 4.3 Implement the write-only secret field helper (reports configured or not, never the value; an omitted field keeps the stored secret), for reuse by the AD and credential endpoints. Verify with unit tests.
-- [ ] 4.4 Add a secret-leak test helper that scans logs, the catalogue, job records and generated files for known test secrets. Verify that it fails on a seeded leak. It is reused by later changes.
+- [x] 4.4 Add a secret-leak test helper that scans logs, the catalogue, job records and generated files for known test secrets. Verify that it fails on a seeded leak. It is reused by later changes.
 
 ## 5. Serving and deployment
 
