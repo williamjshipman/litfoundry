@@ -29,14 +29,14 @@
 
 ## 5. Serving and deployment
 
-- [ ] 5.1 Implement `litfoundry serve` with Waitress on loopback, an explicit run mode, refusal of non-loopback binds and of debug mode. Verify with CLI tests.
-- [ ] 5.2 Add trusted-proxy handling and the host allowlist. Verify with tests that spoofed `X-Forwarded-For` is ignored and that an unknown `Host` returns 400.
-- [ ] 5.3 Add same-origin CORS defaults, with an origin allowlist only through configuration. Verify with a preflight test.
-- [ ] 5.4 Add `packaging/caddy/Caddyfile.example` and deployment documentation covering the proxy, CA trust per OS and browser, and the firewall. Verify the docs build and that the Caddyfile validates with `caddy validate` in CI where Caddy is available.
+- [x] 5.1 Implement `litfoundry serve` with Waitress on loopback, an explicit run mode, refusal of non-loopback binds and of debug mode. Verify with CLI tests.
+- [x] 5.2 Add trusted-proxy handling and the host allowlist. Verify with tests that spoofed `X-Forwarded-For` is ignored and that an unknown `Host` returns 400.
+- [x] 5.3 Add same-origin CORS defaults, with an origin allowlist only through configuration. Verify with a preflight test.
+- [x] 5.4 Add `packaging/caddy/Caddyfile.example` and deployment documentation covering the proxy, CA trust per OS and browser, and the firewall. Verify the docs build and that the Caddyfile validates with `caddy validate` in CI where Caddy is available.
 
 ## 6. Status and logging
 
-- [ ] 6.1 Implement `GET /api/v1/health/live` and the admin-only `GET /api/v1/health/ready`. Verify with API tests; the admin check is stubbed until `m1-local-identity` lands, then re-verified.
+- [x] 6.1 Implement `GET /api/v1/health/live` and the admin-only `GET /api/v1/health/ready`. Verify with API tests; the admin check is stubbed until `m1-local-identity` lands, then re-verified.
 - [ ] 6.2 Implement `litfoundry status`, which exits non-zero on a failed check. Verify with a CLI test against a healthy and a broken data root.
 - [ ] 6.3 Implement structured JSON logging with rotation, process names and redaction. Verify with a unit test that a logged password or token is redacted.
 - [ ] 6.4 Implement `GET /api/v1/admin/logs` with filters. Verify the admin-only access test once identity lands.

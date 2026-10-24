@@ -29,9 +29,29 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(health.bp)
     app.register_blueprint(admin.bp)
 
-    # Register request hooks
-    from litfoundry.middleware import before_request_handler
-
-    app.before_request(before_request_handler)
+    # Setup middleware (proxy handling, host allowlist, and CORS)
+    from litfoundry.middleware import setup_middleware
+    
+    # Parse trusted proxies and allowed hosts from config
+    trusted_proxies = app.config.get("LITFOUNDRY_TRUSTED_PROXIES", "")
+    if isinstance(trusted_proxies, str):
+        trusted_proxies = [ip.strip() for ip in trusted_proxies.split(",") if ip.strip()]
+    
+    allowed_hosts = app.config.get("LITFOUNDRY_ALLOWED_HOSTS", "")
+    if isinstance(allowed_hosts, str):
+        allowed_hosts = [host.strip() for host in allowed_hosts.split(",") if host.strip()]
+    
+    # Parse CORS origins from config
+    cors_origins = app.config.get("LITFOUNDRY_CORS_ORIGINS", "")
+    if isinstance(cors_origins, str):
+        cors_origins = [origin.strip() for origin in cors_origins.split(",") if origin.strip()]
+    
+    setup_middleware(
+        app,
+        trusted_proxies=trusted_proxies or None,
+        host_allowlist=allowed_hosts or None,
+        cors_origins=cors_origins or None,
+    )
 
     return app
+

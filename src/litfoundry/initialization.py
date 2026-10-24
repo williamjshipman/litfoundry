@@ -24,8 +24,9 @@ def initialize_data_root(root: Path, recreate: bool = False) -> None:
     # Validate the root path
     Config.validate_data_root(root)
 
-    # Check if already initialized
-    if root.exists():
+    # Check if already initialized (look for marker file)
+    initialized_marker = root / ".initialized"
+    if initialized_marker.exists():
         if not recreate:
             # Already initialized, idempotent
             return
@@ -58,6 +59,7 @@ def initialize_data_root(root: Path, recreate: bool = False) -> None:
 
     # Mark initialization complete (touch a marker file)
     (root / ".initialized").touch()
+
 
 
 def reinitialize_data_root(root: Path) -> None:

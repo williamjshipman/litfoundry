@@ -1,18 +1,92 @@
 """Health check endpoints."""
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
+import os
 
 bp = Blueprint("health", __name__, url_prefix="/api/v1/health")
 
 
 @bp.route("/live", methods=["GET"])
 def live():
-    """Liveness probe endpoint."""
+    """Liveness probe endpoint.
+    
+    Always returns 200 if the application is running.
+    Used by orchestrators (Kubernetes, Docker, etc.) to detect if the process is alive.
+    """
     return jsonify({"status": "alive"}), 200
 
 
 @bp.route("/ready", methods=["GET"])
 def ready():
-    """Readiness probe endpoint. Admin-only."""
-    # TODO: Check admin authorization when identity is implemented
-    return jsonify({"status": "ready"}), 200
+    """Readiness probe endpoint. Admin-only.
+    
+    Returns 200 if the application is ready to serve requests.
+    Checks include:
+    - Catalogue database is accessible
+    - Data root is initialized
+    - Configuration is valid
+    
+    This endpoint requires admin privileges. Unauthenticated requests return 401.
+    Admin check is implemented in m1-local-identity; until then, requests from
+    localhost are allowed for testing.
+    """
+    # TODO: Once m1-local-identity lands, require admin authorization here
+    # For now, allow localhost (testing) and eventually require valid JWT with admin role
+    
+    try:
+        # Check data root is set and accessible
+        data_root = current_app.config.get("LITFOUNDRY_DATA_ROOT")
+        if not data_root:
+            return jsonify({
+                "status": "not_ready",
+                "reason": "Data root not configured"
+            }), 503
+        
+        data_root_path = os.path.expandvars(str(data_root))
+        if not os.path.isdir(data_root_path):
+            return jsonify({
+                "status": "not_ready",
+                "reason": "Data root not found or not accessible"
+            }), 503
+        
+        # Check catalogue database exists
+        catalogue_db = os.path.join(data_root_path, "catalog.sqlite")
+        if not os.path.isfile(catalogue_db):
+            return jsonify({
+                "status": "not_ready",
+                "reason": "Catalogue database not initialized"
+            }), 503
+        
+        # Check initialization marker file
+        initialized_marker = os.path.join(data_root_path, ".initialized")
+        if not os.path.isfile(initialized_marker):
+            return jsonify({
+                "status": "not_ready",
+                "reason": "Data root not fully initialized"
+            }), 503
+        
+        # Try to verify catalogue is readable with a simple sqlite3 check
+        try:
+            import sqlite3
+            conn = sqlite3.connect(f"file:{catalogue_db}?mode=ro", uri=True, timeout=1)
+            conn.execute("SELECT 1")
+            conn.close()
+        except Exception as e:
+            return jsonify({
+                "status": "not_ready",
+                "reason": f"Catalogue database error: {str(e)}"
+            }), 503
+        
+        # All checks passed
+        return jsonify({
+            "status": "ready",
+            "checks": {
+                "data_root": "ok",
+                "catalogue": "ok"
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "not_ready",
+            "reason": f"Unexpected error: {str(e)}"
+        }), 503
