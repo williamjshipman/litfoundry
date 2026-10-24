@@ -56,23 +56,28 @@ def create_catalog_engine(catalog_path: Path) -> Engine:
 def run_alembic_upgrade(catalog_path: Path, target_revision: str = "head") -> None:
     """Run Alembic migrations for the catalogue database.
 
+    This function handles both baseline initialization and future migrations:
+    - Baseline (001_baseline): Tables created directly via sqlite3 to avoid
+      Alembic engine_from_config() Windows path issues during initialization
+    - Future migrations: Delegated to Alembic's programmatic API which ensures
+      proper tracking, reversibility, and schema change management
+
     Args:
         catalog_path: Path to the catalog.sqlite database file
         target_revision: Target revision (default: 'head')
     """
     import sqlite3
-    
-    # Ensure catalog parent directory exists
+
     catalog_path = Path(catalog_path)
     catalog_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Create tables directly - bypass Alembic due to Windows path issues
-    # This is the baseline migration from 001_baseline.py
+    # Bootstrap: Create baseline schema using direct sqlite3
+    # This avoids Alembic's engine_from_config() Windows path issues
     conn = sqlite3.connect(str(catalog_path))
     try:
         cursor = conn.cursor()
         
-        # Create alembic version tracking table
+        # Create alembic_version table (required by Alembic)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS alembic_version (
                 version_num VARCHAR(32) NOT NULL,
@@ -85,7 +90,7 @@ def run_alembic_upgrade(catalog_path: Path, target_revision: str = "head") -> No
         already_applied = cursor.fetchone() is not None
         
         if not already_applied:
-            # Create baseline tables
+            # Create baseline schema tables (from 001_baseline.py)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS schema_meta (
                     version INTEGER NOT NULL,
@@ -111,3 +116,26 @@ def run_alembic_upgrade(catalog_path: Path, target_revision: str = "head") -> No
         conn.commit()
     finally:
         conn.close()
+
+    # Future migrations: Use Alembic's programmatic API
+    # This ensures schema changes are properly tracked and can be reversed
+    if target_revision != "001_baseline":
+        from alembic import command
+        from alembic.config import Config
+
+        current_file = Path(__file__)
+        project_root = current_file.parent.parent.parent.parent
+        migrations_dir = project_root / "migrations" / "catalog"
+
+        alembic_cfg = Config(str(migrations_dir / "alembic.ini"))
+        
+        # Set the database URL with proper Windows path formatting
+        abs_path = catalog_path.resolve()
+        db_url = f"sqlite:///{abs_path.as_posix()}"
+        
+        alembic_cfg.set_main_option("sqlalchemy.url", db_url)
+        alembic_cfg.set_main_option("script_location", str(migrations_dir))
+
+        # Run Alembic upgrade with target revision
+        # This applies any migrations beyond the baseline
+        command.upgrade(alembic_cfg, target_revision)
