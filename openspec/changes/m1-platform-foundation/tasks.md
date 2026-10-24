@@ -18,7 +18,7 @@
 - [x] 3.3 Apply restrictive permissions: a Windows DACL with inheritance disabled, and POSIX `0700`. Verify with OS-specific tests on each CI runner.
 - [x] 3.4 Refuse UNC and network-filesystem data roots in `init` and `serve`. Verify with unit tests using mocked drive types and mount tables.
 - [x] 3.5 Implement the path-containment helper (rejecting `..`, absolute user paths and escaping symlinks) and UUID-only naming. Verify with unit tests, including a symlink fixture.
-- [ ] 3.6 Write the configuration reference in `docs/` for Windows, Linux and macOS. Verify that every variable in `.env.example` is documented.
+- [x] 3.6 Write the configuration reference in `docs/` for Windows, Linux and macOS. Verify that every variable in `.env.example` is documented.
 
 ## 4. Catalogue and secret storage
 
