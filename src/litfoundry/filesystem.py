@@ -187,6 +187,7 @@ def _apply_windows_permissions(root: Path) -> None:
     """Apply Windows DACL permissions."""
     try:
         import ntsecuritycon
+        import win32api
         import win32security
 
         # Get the security descriptor
@@ -195,11 +196,25 @@ def _apply_windows_permissions(root: Path) -> None:
         )
         dacl = win32security.ACL(10)
 
-        # Get SIDs for SYSTEM, Administrators
+        # Get SIDs for SYSTEM, Administrators, and current user
         system_sid = win32security.LookupAccountName("", "SYSTEM")[0]
         admin_sid = win32security.LookupAccountName("", "Administrators")[0]
+        
+        # Get current user's SID from the current process token
+        process_token = win32security.OpenProcessToken(
+            win32api.GetCurrentProcess(),
+            win32security.TOKEN_QUERY
+        )
+        current_user_sid = win32security.GetTokenInformation(
+            process_token, win32security.TokenUser
+        )[0]
 
-        # Add ACEs for SYSTEM and Administrators (full control)
+        # Add ACEs for current user, SYSTEM, and Administrators (full control)
+        dacl.AddAccessAllowedAce(
+            win32security.ACL_REVISION,
+            ntsecuritycon.FILE_ALL_ACCESS,
+            current_user_sid,
+        )
         dacl.AddAccessAllowedAce(
             win32security.ACL_REVISION,
             ntsecuritycon.FILE_ALL_ACCESS,
