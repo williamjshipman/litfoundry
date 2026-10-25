@@ -79,14 +79,43 @@ def serve(data_root: str | None, port: int, mode: str) -> None:
     help="Data root directory. If not set, uses platform default.",
 )
 def status(data_root: str | None) -> None:
-    """Check the status of a LitFoundry installation."""
+    """Check the status of a LitFoundry installation.
+    
+    Displays health checks and exits non-zero if any critical checks fail.
+    """
     from litfoundry.status import check_status
 
     root = Path(data_root) if data_root else Config.get_default_data_root()
 
     try:
         result = check_status(root)
-        click.echo(f"Status: {result['status']}", err=False)
+        
+        # Print header with overall status
+        status_str = result["status"].upper()
+        click.echo(f"LitFoundry Status: {status_str}", err=False)
+        click.echo(f"Version: {result['version']}", err=False)
+        click.echo("", err=False)
+        
+        # Print individual checks
+        click.echo("Health Checks:", err=False)
+        for check_name, check_result in result["checks"].items():
+            status_val = check_result.get("status", "unknown").upper()
+            reason = check_result.get("reason", "")
+            path = check_result.get("path", "")
+            free_mb = check_result.get("free_mb", "")
+            
+            # Format output for each check
+            line = f"  {check_name}: {status_val}"
+            if reason:
+                line += f" ({reason})"
+            elif path:
+                line += f" ({path})"
+            elif free_mb:
+                line += f" ({free_mb} MB)"
+            
+            click.echo(line, err=False)
+        
+        # Exit non-zero if not healthy
         if not result["healthy"]:
             sys.exit(1)
     except Exception as e:

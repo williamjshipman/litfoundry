@@ -37,9 +37,9 @@
 ## 6. Status and logging
 
 - [x] 6.1 Implement `GET /api/v1/health/live` and the admin-only `GET /api/v1/health/ready`. Verify with API tests; the admin check is stubbed until `m1-local-identity` lands, then re-verified.
-- [ ] 6.2 Implement `litfoundry status`, which exits non-zero on a failed check. Verify with a CLI test against a healthy and a broken data root.
-- [ ] 6.3 Implement structured JSON logging with rotation, process names and redaction. Verify with a unit test that a logged password or token is redacted.
-- [ ] 6.4 Implement `GET /api/v1/admin/logs` with filters. Verify the admin-only access test once identity lands.
-- [ ] 6.5 Add an offline-operation test: with outbound network blocked, the server starts, serves existing data and reports a retryable error for an outbound call. Verify that it passes.
+- [x] 6.2 Implement `litfoundry status`, which exits non-zero on a failed check. Verify with a CLI test against a healthy and a broken data root.
+- [x] 6.3 Implement structured JSON logging with rotation, process names and redaction. Verify with a unit test that a logged password or token is redacted.
+- [x] 6.4 Implement `GET /api/v1/admin/logs` with filters. Verify the admin-only access test once identity lands.
+- [x] 6.5 Add an offline-operation test: with outbound network blocked, the server starts, serves existing data and reports a retryable error for an outbound call. Verify that it passes.
 
 GUI screens for this change's requirements (branding, About, Admin → System and the log view) are built in `m1-local-identity` group 6, because the SPA shell and sign-in arrive there. Archive the three `m1-*` changes together.
