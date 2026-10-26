@@ -39,11 +39,12 @@ class TestServeCommand:
             assert result.exit_code == 0
             
             with mock.patch("litfoundry.server.start_server") as mock_start:
-                runner.invoke(main, ["serve", "--data-root", str(root)])
+                result = runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "workstation"])
+                # Verify start_server was actually called
+                assert mock_start.called, "start_server not called; command did not execute"
                 # Check that start_server was called with port 5080
-                if mock_start.called:
-                    call_args = mock_start.call_args
-                    assert call_args[1]["port"] == 5080 or (len(call_args[0]) > 1 and call_args[0][1] == 5080)
+                call_args = mock_start.call_args
+                assert call_args[1]["port"] == 5080, f"Expected port 5080, got {call_args[1]['port']}"
 
     def test_serve_custom_port(self):
         """Test that serve accepts a custom port."""
@@ -54,10 +55,12 @@ class TestServeCommand:
             assert result.exit_code == 0
             
             with mock.patch("litfoundry.server.start_server") as mock_start:
-                runner.invoke(main, ["serve", "--data-root", str(root), "--port", "8080"])
-                if mock_start.called:
-                    call_args = mock_start.call_args
-                    assert call_args[1]["port"] == 8080 or (len(call_args[0]) > 1 and call_args[0][1] == 8080)
+                result = runner.invoke(main, ["serve", "--data-root", str(root), "--port", "8080", "--mode", "workstation"])
+                # Verify start_server was actually called
+                assert mock_start.called, "start_server not called; command did not execute"
+                # Check that start_server was called with port 8080
+                call_args = mock_start.call_args
+                assert call_args[1]["port"] == 8080, f"Expected port 8080, got {call_args[1]['port']}"
 
     def test_serve_server_mode(self):
         """Test that serve accepts 'server' run mode."""
@@ -68,10 +71,12 @@ class TestServeCommand:
             assert result.exit_code == 0
             
             with mock.patch("litfoundry.server.start_server") as mock_start:
-                runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "server"])
-                if mock_start.called:
-                    call_args = mock_start.call_args
-                    assert call_args[1]["mode"] == "server" or (len(call_args[0]) > 2 and call_args[0][2] == "server")
+                result = runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "server"])
+                # Verify start_server was actually called
+                assert mock_start.called, "start_server not called; command did not execute"
+                # Check that start_server was called with mode 'server'
+                call_args = mock_start.call_args
+                assert call_args[1]["mode"] == "server", f"Expected mode 'server', got {call_args[1]['mode']}"
 
     def test_serve_workstation_mode(self):
         """Test that serve accepts 'workstation' run mode."""
@@ -82,10 +87,12 @@ class TestServeCommand:
             assert result.exit_code == 0
             
             with mock.patch("litfoundry.server.start_server") as mock_start:
-                runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "workstation"])
-                if mock_start.called:
-                    call_args = mock_start.call_args
-                    assert call_args[1]["mode"] == "workstation" or (len(call_args[0]) > 2 and call_args[0][2] == "workstation")
+                result = runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "workstation"])
+                # Verify start_server was actually called
+                assert mock_start.called, "start_server not called; command did not execute"
+                # Check that start_server was called with mode 'workstation'
+                call_args = mock_start.call_args
+                assert call_args[1]["mode"] == "workstation", f"Expected mode 'workstation', got {call_args[1]['mode']}"
 
     def test_serve_refuses_debug_mode(self):
         """Test that serve refuses to start with debug mode enabled."""
@@ -113,12 +120,13 @@ class TestServeCommand:
             # Mock both Waitress serve and create_app to prevent actual server startup
             with mock.patch("waitress.serve") as mock_waitress_serve:
                 with mock.patch("litfoundry.server.create_app"):
-                    runner.invoke(main, ["serve", "--data-root", str(root)])
+                    result = runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "workstation"])
+                    # Verify Waitress was actually called
+                    assert mock_waitress_serve.called, "Waitress serve not called; startup path not exercised"
                     # Verify Waitress was called with loopback
-                    if mock_waitress_serve.called:
-                        call_args = mock_waitress_serve.call_args
-                        # Check host parameter
-                        assert call_args[1].get("host") == "127.0.0.1"
+                    call_args = mock_waitress_serve.call_args
+                    assert call_args[1].get("host") == "127.0.0.1", \
+                        f"Expected host 127.0.0.1, got {call_args[1].get('host')}"
 
     def test_serve_requires_data_root_to_exist(self):
         """Test that serve requires data root to exist."""

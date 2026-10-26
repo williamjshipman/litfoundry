@@ -189,3 +189,44 @@ class TestServeConfiguration:
             assert config_dict["LITFOUNDRY_RUN_MODE"] == "server"
             assert config_dict["LITFOUNDRY_PORT"] == 6000
             assert config_dict["LITFOUNDRY_ALLOWED_HOSTS"] == "example.com"
+
+    def test_serve_startup_path_regression(self):
+        """Regression test: Verify start_server() actually passes config to create_app().
+        
+        This test exercises the actual serve startup path (with Waitress mocked) to ensure
+        the fix is working. Without the fix, create_app() receives no config, causing
+        readiness check failures and security issues. This test verifies the fix by:
+        1. Calling start_server() directly with Waitress mocked
+        2. Verifying that create_app() was called with config dict including data root
+        3. Verifying that the Flask app has the expected config set
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            initialize_data_root(root)
+
+            # Mock Waitress serve (imported inside start_server function)
+            with mock.patch("waitress.serve") as mock_waitress:
+                from litfoundry.server import start_server
+                
+                # Call start_server with explicit mode
+                start_server(root, port=5080, mode="workstation")
+                
+                # Verify Waitress was called (server attempted to start)
+                assert mock_waitress.called, "Waitress serve() not called; startup path not exercised"
+                
+                # Get the Flask app that was passed to Waitress
+                call_args = mock_waitress.call_args
+                app = call_args[0][0]
+                
+                # Verify the app has the correct configuration
+                assert app.config.get("LITFOUNDRY_DATA_ROOT") == str(root), \
+                    "Data root not passed to Flask app config"
+                assert app.config.get("LITFOUNDRY_RUN_MODE") == "workstation", \
+                    "Mode not passed to Flask app config"
+                
+                # Verify readiness check would work (app is properly configured)
+                with app.test_client() as client:
+                    response = client.get("/api/v1/health/ready")
+                    assert response.status_code == 200, \
+                        f"Readiness check failed; fix not working. Got {response.status_code}"
+                    assert response.json["status"] == "ready"
