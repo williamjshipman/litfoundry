@@ -97,7 +97,7 @@ class TestServeCommand:
             
             # Set FLASK_DEBUG and try to serve
             with mock.patch.dict("os.environ", {"FLASK_DEBUG": "1"}):
-                result = runner.invoke(main, ["serve", "--data-root", str(root)])
+                result = runner.invoke(main, ["serve", "--data-root", str(root), "--mode", "workstation"])
                 # Should fail with error about debug mode
                 assert result.exit_code != 0
                 assert "debug" in result.output.lower()

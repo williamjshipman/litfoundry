@@ -54,9 +54,9 @@ def init(data_root: str | None) -> None:
 @click.option(
     "--mode",
     type=click.Choice(["server", "workstation"]),
-    default="server",
     envvar="LITFOUNDRY_RUN_MODE",
-    help="Execution mode: server (behind proxy) or workstation (local only).",
+    required=True,
+    help="Execution mode: server (behind proxy) or workstation (local only). Required.",
 )
 def serve(data_root: str | None, port: int, mode: str) -> None:
     """Start the LitFoundry server."""
