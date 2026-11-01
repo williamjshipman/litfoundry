@@ -10,7 +10,7 @@ class Config:
     """LitFoundry configuration with platform defaults."""
 
     LITFOUNDRY_DATA_ROOT: str | None = None
-    LITFOUNDRY_RUN_MODE: str = "server"  # server | workstation
+    LITFOUNDRY_RUN_MODE: str | None = None  # server | workstation (must be explicit)
     LITFOUNDRY_PORT: int = 5080
     LITFOUNDRY_TRUSTED_PROXIES: str = ""
     LITFOUNDRY_ALLOWED_HOSTS: str = "localhost,127.0.0.1"

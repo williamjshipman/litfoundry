@@ -36,9 +36,11 @@ class TestConfigDefaults:
             assert "lib" in root.parts
 
     def test_default_run_mode(self):
-        """Test default run mode."""
+        """Test default run mode - should be None (no silent default)."""
         config = Config()
-        assert config.LITFOUNDRY_RUN_MODE == "server"
+        # Mode should NOT have a default to avoid silent defaulting
+        # CLI must enforce explicit --mode selection
+        assert config.LITFOUNDRY_RUN_MODE is None
 
     def test_default_port(self):
         """Test default port."""
@@ -75,7 +77,8 @@ class TestConfigLoading:
         with mock.patch.dict(os.environ, {}, clear=True):
             config = Config.load_from_env()
             assert config.LITFOUNDRY_PORT == 5080
-            assert config.LITFOUNDRY_RUN_MODE == "server"
+            # RUN_MODE should be None (no silent default)
+            assert config.LITFOUNDRY_RUN_MODE is None
 
     def test_unprefixed_variables_ignored(self):
         """Test that non-LITFOUNDRY_ prefixed variables are ignored."""

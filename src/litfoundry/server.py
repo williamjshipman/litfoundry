@@ -19,9 +19,19 @@ def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
     Raises:
         ValueError: If the data root is invalid or on a network filesystem
         SystemExit: If configuration is invalid
+
     """
     # Validate the data root
     Config.validate_data_root(root)
+
+    # Check if data root is initialized; warn if not
+    initialized_marker = root / ".initialized"
+    if not initialized_marker.exists():
+        print(
+            f"Warning: Data root at {root} does not appear to be initialized.",
+            file=sys.stderr,
+        )
+        print("Run 'litfoundry init --data-root <root>' first.", file=sys.stderr)
 
     # Note: mode is guaranteed to be valid ('server' or 'workstation') by Click's choice validator
 
@@ -42,7 +52,7 @@ def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
     # Load environment configuration and merge with data root and mode
     env_config = Config.load_from_env()
     app_config = env_config.to_dict()
-    
+
     # Override with runtime arguments (data root and mode are always explicit)
     app_config["LITFOUNDRY_DATA_ROOT"] = str(root)
     app_config["LITFOUNDRY_RUN_MODE"] = mode
@@ -60,7 +70,7 @@ def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
     # Log server startup with configured settings
     print(f"Starting LitFoundry server in {mode} mode on {bind_address}:{port}")
     print(f"Data root: {root}")
-    
+
     # Show configured middleware settings
     if app_config.get("LITFOUNDRY_TRUSTED_PROXIES"):
         print(f"Trusted proxies: {app_config['LITFOUNDRY_TRUSTED_PROXIES']}")
@@ -68,7 +78,7 @@ def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
         print(f"Allowed hosts: {app_config['LITFOUNDRY_ALLOWED_HOSTS']}")
     if app_config.get("LITFOUNDRY_CORS_ORIGINS"):
         print(f"CORS origins: {app_config['LITFOUNDRY_CORS_ORIGINS']}")
-    
+
     if mode == "server":
         print("Use a reverse proxy (e.g., Caddy) for HTTPS and network access")
     else:
