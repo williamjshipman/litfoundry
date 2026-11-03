@@ -84,5 +84,16 @@ def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
     else:
         print("Workstation mode: accessible only on localhost")
 
-    # Run Waitress on loopback
-    serve(app, host=bind_address, port=port, _quiet=True)
+    # Configure Waitress with trusted proxy settings
+    # Parse trusted proxies from config for Waitress
+    waitress_kwargs = {}
+    trusted_proxies_str = app_config.get("LITFOUNDRY_TRUSTED_PROXIES", "")
+    if trusted_proxies_str:
+        trusted_proxy_list = [ip.strip() for ip in trusted_proxies_str.split(",") if ip.strip()]
+        if trusted_proxy_list:
+            # Waitress accepts trusted_proxy as list of IP addresses
+            # or '*' to trust all proxies (NOT recommended)
+            waitress_kwargs["trusted_proxy"] = trusted_proxy_list
+
+    # Run Waitress on loopback with optional trusted proxy settings
+    serve(app, host=bind_address, port=port, _quiet=True, **waitress_kwargs)

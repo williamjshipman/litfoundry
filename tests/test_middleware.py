@@ -119,31 +119,27 @@ class TestTrustedProxies:
     """Tests for trusted proxy forwarding."""
 
     def test_spoofed_x_forwarded_for_ignored_from_untrusted(self, app_with_trusted_proxies):
-        """Test that X-Forwarded-For from untrusted peer is ignored."""
+        """Test that X-Forwarded-For from untrusted peer is rejected with 403."""
         client = app_with_trusted_proxies.test_client()
-        
+
         # Request from untrusted peer (localhost, which is not in LITFOUNDRY_TRUSTED_PROXIES)
-        # with spoofed X-Forwarded-For should use the actual peer address
+        # should be rejected with 403 Forbidden
         response = client.get(
             "/api/v1/health/live",
-            headers={"X-Forwarded-For": "10.9.9.9", "Host": "localhost"}
+            headers={"X-Forwarded-For": "10.9.9.9", "Host": "localhost"},
         )
-        assert response.status_code == 200
-        # The request should process without using the spoofed address
-        # (We can't directly test the recorded peer address in a unit test,
-        # but we verify it doesn't error or bypass security)
+        assert response.status_code == 403
 
     def test_x_forwarded_for_honored_from_trusted(self, app_with_trusted_proxies):
         """Test that X-Forwarded-For is honored from a trusted proxy."""
-        # This test is limited in a unit test because the test client doesn't
-        # actually come from a network peer. But we can verify the header passes through.
         client = app_with_trusted_proxies.test_client()
-        
-        # In a real scenario, if the request comes from 10.0.0.1 (a trusted proxy),
-        # the X-Forwarded-For header would be trusted. The test client doesn't
-        # allow us to spoof the peer address, so this is more of an integration test.
-        # For now, verify the middleware is configured and doesn't break normal requests.
-        response = client.get("/api/v1/health/live", headers={"Host": "localhost"})
+
+        # Request from trusted proxy (10.0.0.1)
+        response = client.get(
+            "/api/v1/health/live",
+            headers={"X-Forwarded-For": "10.9.9.9", "Host": "localhost"},
+            environ_base={"REMOTE_ADDR": "10.0.0.1"},
+        )
         assert response.status_code == 200
 
     def test_x_forwarded_proto_honored_from_trusted(self, app_with_trusted_proxies):
@@ -151,7 +147,8 @@ class TestTrustedProxies:
         client = app_with_trusted_proxies.test_client()
         response = client.get(
             "/api/v1/health/live",
-            headers={"X-Forwarded-Proto": "https", "Host": "localhost"}
+            headers={"X-Forwarded-Proto": "https", "Host": "localhost"},
+            environ_base={"REMOTE_ADDR": "10.0.0.1"},
         )
         assert response.status_code == 200
 
@@ -160,9 +157,11 @@ class TestTrustedProxies:
         client = app_with_trusted_proxies.test_client()
         response = client.get(
             "/api/v1/health/live",
-            headers={"X-Forwarded-Host": "litfoundry.example.internal", "Host": "localhost"}
+            headers={"X-Forwarded-Host": "litfoundry.example.internal", "Host": "localhost"},
+            environ_base={"REMOTE_ADDR": "10.0.0.1"},
         )
         # Should be allowed since litfoundry.example.internal is in the allowlist
+        # and request is from trusted proxy
         assert response.status_code == 200
 
 
@@ -252,20 +251,21 @@ class TestMiddlewareIntegration:
     def test_allowlist_with_trusted_proxy_headers(self, app_with_trusted_proxies):
         """Test that host allowlist works with trusted proxy headers."""
         client = app_with_trusted_proxies.test_client()
-        
-        # Direct request with allowed host
+
+        # Direct request with allowed host (no trusted proxy, no forwarded headers)
         response = client.get("/api/v1/health/live", headers={"Host": "localhost"})
-        assert response.status_code == 200
-        
-        # Request with allowed host in X-Forwarded-Host should work if X-Forwarded-Proto
-        # indicates it came through a trusted proxy
+        # This should fail because localhost is not a trusted proxy
+        assert response.status_code == 403
+
+        # Request from trusted proxy with allowed host in X-Forwarded-Host
         response = client.get(
             "/api/v1/health/live",
             headers={
                 "X-Forwarded-Host": "litfoundry.example.internal",
                 "X-Forwarded-Proto": "https",
                 "Host": "localhost",
-            }
+            },
+            environ_base={"REMOTE_ADDR": "10.0.0.1"},
         )
         assert response.status_code == 200
 
