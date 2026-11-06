@@ -48,8 +48,16 @@ litfoundry.example.internal {
 		header_up X-Forwarded-Proto {http.request.scheme}
 		header_up X-Forwarded-Host {http.request.host}
 		
-		# LitFoundry timeout settings
-		timeout 30s
+		# Connection and response timeouts
+		transport http {
+			# Time to establish TCP connection to upstream (loopback is instant)
+			dial_timeout 10s
+			# Time to receive response headers from upstream (API should respond quickly)
+			response_timeout 10s
+		}
+		
+		# Time to receive response body data (allows large exports/downloads to stream)
+		stream_timeout 30s
 	}
 
 	# Logging (optional)

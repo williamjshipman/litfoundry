@@ -50,9 +50,10 @@ class TestCaddyfileConfiguration:
                 timeout=5,
             )
             
-            # On most systems, caddy validate won't work on a commented example
-            # but we can at least check that caddy runs without crashing
-            assert result.returncode in [0, 1], "Caddy crashed during validation"
+            # Configuration must validate cleanly with exit code 0.
+            # Accepting failure (exit code 1) would mask syntax errors like invalid subdirectives.
+            # A properly formed Caddyfile must pass validation.
+            assert result.returncode == 0, f"Caddyfile validation failed: {result.stderr.decode()}"
         except (FileNotFoundError, subprocess.TimeoutExpired):
             # Caddy not installed or timed out; skip this test
             pass
