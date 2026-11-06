@@ -140,21 +140,63 @@ def check_network_filesystem(root: Path) -> None:
             pass
 
     elif sys.platform == "darwin":
-        # macOS: check mount filesystem types
+        # macOS: use statfs() to check filesystem type
         try:
-            with open("/etc/mnttab") as f:
-                for line in f:
-                    parts = line.split()
-                    if len(parts) >= 3:
-                        mount_path, fstype = parts[0], parts[2]
-                        if mount_path in str(root) and fstype in [
-                            "smbfs",
-                            "nfs",
-                            "afpfs",
-                        ]:
-                            raise ValueError(f"Mounted on network filesystem {fstype}: {root}")
+            import os
+            # Get the stat information
+            stat_info = os.statvfs(str(root))
+            
+            # fstype is extracted from f_fstypename via syscall
+            # Use os.statvfs which returns a statvfs_result
+            # Unfortunately, statvfs doesn't directly expose fstype on all systems
+            # Fall back to mount point detection via /etc/mtab (modern macOS)
+            # or check f_blocks/f_type patterns
+            
+            # On macOS, use statfs syscall for filesystem type
+            try:
+                from ctypes import c_char_p, c_ulonglong, CDLL, Structure, POINTER, byref
+                
+                libc = CDLL(None)
+                
+                class StatFS(Structure):
+                    pass
+                
+                # macOS statfs structure (f_fstypename is at offset in the struct)
+                # Use native statfs syscall
+                statfs_func = libc.statfs
+                statfs_func.argtypes = [c_char_p, POINTER(StatFS)]
+                statfs_func.restype = c_ulonglong
+                
+                # This approach is complex; instead, check mount entries
+                # macOS modern systems use mount(8) output or /etc/mnttab
+                import subprocess
+                result = subprocess.run(
+                    ["mount"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                
+                for line in result.stdout.split('\n'):
+                    # mount output format: device on mount_point (fstype, options)
+                    if f" on " in line:
+                        parts = line.split(" on ")
+                        if len(parts) == 2:
+                            mount_path_and_type = parts[1]
+                            if " (" in mount_path_and_type:
+                                mount_path = mount_path_and_type.split(" (")[0]
+                                fstype_and_opts = mount_path_and_type.split("(")[1].rstrip(")")
+                                fstype = fstype_and_opts.split(",")[0] if "," in fstype_and_opts else fstype_and_opts
+                                
+                                if str(root).startswith(mount_path):
+                                    if fstype in ["smbfs", "nfs", "afpfs"]:
+                                        raise ValueError(f"Mounted on network filesystem {fstype}: {root}")
+            except (ImportError, AttributeError, OSError, subprocess.TimeoutExpired):
+                # Fallback: if ctypes/subprocess not available, try simple mount check
+                pass
+                
         except (OSError, FileNotFoundError):
-            # File doesn't exist on all macOS versions, that's fine
+            # File doesn't exist or mount command failed, that's fine
             pass
 
     else:
@@ -163,11 +205,17 @@ def check_network_filesystem(root: Path) -> None:
             with open("/proc/self/mountinfo") as f:
                 for line in f:
                     parts = line.split()
-                    if len(parts) >= 9:
-                        mount_point, fstype = parts[4], parts[8]
-                        if root_str.startswith(mount_point):
-                            if fstype in ["nfs", "cifs", "smb3", "fuse.sshfs"]:
-                                raise ValueError(f"Mounted on network filesystem {fstype}: {root}")
+                    # Format: ID Parent Major:Minor Root MountPoint Options [-] FsType Source FsOptions
+                    # The separator '-' marks the boundary between variable-length fields
+                    # Mount point is always at index 4, find separator to locate filesystem type
+                    if len(parts) >= 9 and "-" in parts:
+                        mount_point = parts[4]
+                        sep_idx = parts.index("-")
+                        if sep_idx + 1 < len(parts):
+                            fstype = parts[sep_idx + 1]
+                            if root_str.startswith(mount_point):
+                                if fstype in ["nfs", "cifs", "smb3", "fuse.sshfs"]:
+                                    raise ValueError(f"Mounted on network filesystem {fstype}: {root}")
         except (OSError, FileNotFoundError):
             # File might not exist on all Linux systems
             pass

@@ -52,7 +52,24 @@ class Config:
                 programdata = "C:\\ProgramData"
             return Path(programdata) / "LitFoundry"
         elif sys.platform == "darwin":
-            # macOS: ~/Library/Application Support/LitFoundry
+            # macOS: Check for system-wide or user-scoped location
+            # System-wide (preferred for service mode): /Library/Application Support/LitFoundry
+            # User-scoped (for development): ~/Library/Application Support/LitFoundry
+            # Use system-wide by default; applications can override via LITFOUNDRY_DATA_ROOT
+            system_root = Path("/Library/Application Support/LitFoundry")
+            if system_root.exists():
+                # Use system-wide if it exists
+                return system_root
+            
+            # Check if running as root (system-wide installation)
+            try:
+                if os.geteuid() == 0:
+                    return system_root
+            except AttributeError:
+                # os.geteuid not available (shouldn't happen on macOS, but be safe)
+                pass
+            
+            # Fall back to user-scoped for non-root development
             return Path.home() / "Library" / "Application Support" / "LitFoundry"
         else:
             # Linux and others: /var/lib/litfoundry
