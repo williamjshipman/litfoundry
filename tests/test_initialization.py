@@ -13,6 +13,25 @@ class TestDataRootInitialization:
     """Data root initialization integration tests."""
 
     @mock.patch("litfoundry.initialization.apply_permissions")
+    def test_init_creates_all_required_directories(self, mock_perms):
+        """Test that initialization creates all required directories per spec."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir) / "new_root"
+            initialize_data_root(root)
+
+            # Verify all required directories exist per spec:
+            # - secret_material/
+            # - projects/
+            # - trash/
+            # - logs/
+            # - backup_staging/
+            assert (root / "secret_material").exists(), "Missing secret_material directory"
+            assert (root / "projects").exists(), "Missing projects directory"
+            assert (root / "trash").exists(), "Missing trash directory"
+            assert (root / "logs").exists(), "Missing logs directory"
+            assert (root / "backup_staging").exists(), "Missing backup_staging directory"
+
+    @mock.patch("litfoundry.initialization.apply_permissions")
     def test_init_fresh_root(self, mock_perms):
         """Test initializing a fresh data root."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -68,6 +87,8 @@ class TestDataRootInitialization:
             assert (root / "logs").exists()
             assert (root / "secret_material").exists()
             assert (root / "projects").exists()
+            assert (root / "trash").exists(), "Missing trash directory"
+            assert (root / "backup_staging").exists(), "Missing backup_staging directory"
             assert (root / ".initialized").exists()
 
             # Verify secrets were created

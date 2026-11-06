@@ -37,6 +37,8 @@ def initialize_data_root(root: Path, recreate: bool = False) -> None:
     (root / "logs").mkdir(exist_ok=True)
     (root / "secret_material").mkdir(exist_ok=True)
     (root / "projects").mkdir(exist_ok=True)
+    (root / "trash").mkdir(exist_ok=True)
+    (root / "backup_staging").mkdir(exist_ok=True)
 
     # Apply restrictive permissions to data root and subdirectories
     apply_permissions(root)
