@@ -34,7 +34,7 @@ jobs:
             uv-
 
       - name: Sync dependencies
-        run: uv sync
+        run: uv sync --extra dev
 
       - name: Lint with ruff
         run: uv run ruff check src/ tests/

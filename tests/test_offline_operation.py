@@ -147,15 +147,51 @@ class TestOfflineOperation:
 class TestNetworkResilience:
     """Tests for network resilience and error handling."""
 
-    def test_missing_outbound_service_handled_gracefully(self, tmp_path):
-        """Errors from missing outbound services should be retryable."""
+    def test_missing_outbound_service_doesnt_block_initialization(self, tmp_path):
+        """Outbound service availability should not block app initialization."""
         initialize_data_root(tmp_path)
+        # App should initialize successfully even if network services are unavailable
         app = create_app(config={"LITFOUNDRY_DATA_ROOT": str(tmp_path)})
         
-        # This test ensures the server framework is set up to handle
-        # outbound service failures gracefully. Later changes will add
-        # actual outbound calls and verify they raise retryable errors.
+        # Verify that initialization actually happened - not just that app is not None
         assert app is not None
+        assert app.config.get("LITFOUNDRY_DATA_ROOT") == str(tmp_path)
+        
+        # Verify the app can respond to requests
+        client = app.test_client()
+        response = client.get("/api/v1/health/live")
+        assert response.status_code == 200
+
+    def test_offline_health_endpoints_work(self, tmp_path):
+        """Health endpoints must work completely offline without network."""
+        initialize_data_root(tmp_path)
+        app = create_app(config={"LITFOUNDRY_DATA_ROOT": str(tmp_path)})
+        client = app.test_client()
+        
+        # Liveness check should always work offline
+        response = client.get("/api/v1/health/live")
+        assert response.status_code == 200
+        assert response.get_json()["status"] == "alive"
+        
+        # Readiness check should work offline (catalogue already initialized)
+        response = client.get("/api/v1/health/ready")
+        assert response.status_code == 200
+        checks = response.get_json().get("checks", {})
+        assert checks.get("catalogue") == "ok"
+
+    def test_offline_admin_endpoints_work(self, tmp_path):
+        """Admin endpoints must work without network access."""
+        initialize_data_root(tmp_path)
+        app = create_app(config={"LITFOUNDRY_DATA_ROOT": str(tmp_path)})
+        client = app.test_client()
+        
+        # Logs endpoint should work completely offline
+        response = client.get("/api/v1/admin/logs")
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "logs" in data
+        assert "total" in data
+        assert "filtered" in data
 
     def test_server_handles_connection_errors(self, tmp_path):
         """Server should handle connection errors without crashing."""
