@@ -71,12 +71,37 @@ def check_status(data_root: Path) -> dict[str, Any]:
             }
             all_healthy = False
         else:
-            # Try to connect and run a simple query
+            # Try to connect and verify schema is initialized
             try:
                 conn = sqlite3.connect(f"file:{catalogue_db}?mode=ro", uri=True, timeout=1)
-                conn.execute("SELECT 1")
-                conn.close()
-                checks["catalogue"] = {"status": "ok"}
+                cursor = conn.cursor()
+                
+                # Check that required schema tables exist
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='schema_meta'"
+                )
+                if not cursor.fetchone():
+                    conn.close()
+                    checks["catalogue"] = {
+                        "status": "failed",
+                        "reason": "Catalogue schema not initialized (missing schema_meta table)"
+                    }
+                    all_healthy = False
+                else:
+                    # Check system_settings table as well
+                    cursor.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='system_settings'"
+                    )
+                    if not cursor.fetchone():
+                        conn.close()
+                        checks["catalogue"] = {
+                            "status": "failed",
+                            "reason": "Catalogue schema incomplete (missing system_settings table)"
+                        }
+                        all_healthy = False
+                    else:
+                        conn.close()
+                        checks["catalogue"] = {"status": "ok"}
             except Exception as e:
                 checks["catalogue"] = {
                     "status": "failed",

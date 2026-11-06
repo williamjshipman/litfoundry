@@ -147,6 +147,25 @@ class TestStatusChecking:
         assert result["healthy"] is False
         assert result["checks"]["data_root"]["status"] == "failed"
 
+    def test_check_status_empty_database_fails(self, tmp_path):
+        """check_status should fail if catalogue exists but schema is not initialized."""
+        import sqlite3
+        
+        # Create initialization marker
+        (tmp_path / ".initialized").touch()
+        
+        # Create an empty catalogue database (no schema)
+        catalogue_db = tmp_path / "catalog.sqlite"
+        conn = sqlite3.connect(str(catalogue_db))
+        conn.execute("SELECT 1")  # Just open and close
+        conn.close()
+        
+        result = check_status(tmp_path)
+        
+        assert result["healthy"] is False
+        assert result["checks"]["catalogue"]["status"] == "failed"
+        assert "schema_meta" in result["checks"]["catalogue"]["reason"]
+
     def test_status_command_uses_default_data_root(self):
         """Status command without --data-root should use default."""
         runner = CliRunner()

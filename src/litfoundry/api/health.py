@@ -65,11 +65,34 @@ def ready():
                 "reason": "Data root not fully initialized"
             }), 503
         
-        # Try to verify catalogue is readable with a simple sqlite3 check
+        # Verify catalogue database is readable and has required schema
         try:
             import sqlite3
             conn = sqlite3.connect(f"file:{catalogue_db}?mode=ro", uri=True, timeout=1)
-            conn.execute("SELECT 1")
+            
+            # Check that schema_meta table exists (indicates migrations have been applied)
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='schema_meta'"
+            )
+            if not cursor.fetchone():
+                conn.close()
+                return jsonify({
+                    "status": "not_ready",
+                    "reason": "Catalogue schema not initialized (missing schema_meta table)"
+                }), 503
+            
+            # Check that system_settings table exists
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='system_settings'"
+            )
+            if not cursor.fetchone():
+                conn.close()
+                return jsonify({
+                    "status": "not_ready",
+                    "reason": "Catalogue schema incomplete (missing system_settings table)"
+                }), 503
+            
             conn.close()
         except Exception as e:
             return jsonify({

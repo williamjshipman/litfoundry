@@ -185,8 +185,41 @@ class TestHealthEndpointIntegration:
         assert live_post.status_code == 405
         assert ready_post.status_code == 405
 
-    def test_ready_different_states(self, app_with_initialized_data_root):
-        """Test that /ready correctly reports different health states."""
+    def test_ready_with_empty_database(self):
+        """Test that /ready returns 503 when database exists but is empty (no schema)."""
+        from litfoundry.app import create_app
+        import sqlite3
+        import tempfile
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            root.mkdir(exist_ok=True)
+            
+            # Create initialized marker
+            (root / ".initialized").touch()
+            
+            # Create an empty catalogue database (no schema)
+            catalogue_db = root / "catalog.sqlite"
+            conn = sqlite3.connect(str(catalogue_db))
+            conn.execute("SELECT 1")  # Just open and close
+            conn.close()
+            
+            config = {
+                "LITFOUNDRY_DATA_ROOT": str(root),
+                "TESTING": True,
+            }
+            app = create_app(config)
+            client = app.test_client()
+            
+            response = client.get("/api/v1/health/ready")
+            
+            # Should fail because schema is not initialized
+            assert response.status_code == 503
+            assert response.json["status"] == "not_ready"
+            assert "schema_meta" in response.json.get("reason", "").lower()
+
+    def test_ready_distinguishes_schema_from_connectivity(self, app_with_initialized_data_root):
+        """Test that /ready distinguishes schema errors from connectivity errors."""
         app, root = app_with_initialized_data_root
         client = app.test_client()
         
@@ -194,15 +227,20 @@ class TestHealthEndpointIntegration:
         response = client.get("/api/v1/health/ready")
         assert response.status_code == 200
         
-        # Now simulate broken catalogue by removing it
-        catalogue_path = root / "catalog.sqlite"
-        if catalogue_path.exists():
-            catalogue_path.unlink()
+        # Now corrupt the database to simulate schema failure
+        # Delete a required table
+        import sqlite3
+        catalogue_db = root / "catalog.sqlite"
+        conn = sqlite3.connect(str(catalogue_db))
+        conn.execute("DROP TABLE system_settings")
+        conn.commit()
+        conn.close()
         
-        # Should now report not ready
+        # Should now report not ready with schema error
         response = client.get("/api/v1/health/ready")
         assert response.status_code == 503
         assert response.json["status"] == "not_ready"
+        assert "system_settings" in response.json.get("reason", "")
 
     def test_live_endpoint_has_no_side_effects(self, app_with_initialized_data_root):
         """Test that calling /live doesn't modify application state."""
