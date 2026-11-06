@@ -174,6 +174,42 @@ class TestAdminLogsEndpoint:
         data = response.get_json()
         assert data["limit"] == 10
 
+    def test_logs_endpoint_symlink_escape_prevented(self, tmp_path):
+        """Logs endpoint should reject symlinks that escape the data root."""
+        initialize_data_root(tmp_path)
+        
+        # Create a file outside the data root
+        outside_file = tmp_path.parent / "outside_litfoundry.log"
+        outside_file.write_text("SECRET DATA OUTSIDE ROOT")
+        
+        # Create a symlink inside the data root pointing outside
+        logs_dir = tmp_path / "logs"
+        symlink_path = logs_dir / "litfoundry.log"
+        if symlink_path.exists():
+            symlink_path.unlink()
+        
+        # Try to create a symlink (may fail on Windows without admin)
+        try:
+            symlink_path.symlink_to(outside_file)
+        except (OSError, NotImplementedError):
+            # Symlinks not supported on this system, skip test
+            pytest.skip("Symlinks not supported on this system")
+        
+        app = create_app(config={"LITFOUNDRY_DATA_ROOT": str(tmp_path)})
+        client = app.test_client()
+        
+        response = client.get("/api/v1/admin/logs")
+        
+        # Should reject the symlink escape attempt with 400 error
+        assert response.status_code == 400
+        data = response.get_json()
+        assert "error" in data
+        assert "escape" in data["error"].lower() or "validation" in data["error"].lower()
+        
+        # Verify the outside file content is NOT returned
+        response_json = response.get_json()
+        assert "SECRET DATA OUTSIDE ROOT" not in str(response_json)
+
     def test_logs_endpoint_malformed_log_file_handling(self, tmp_path):
         """Logs endpoint should handle malformed log entries gracefully."""
         initialize_data_root(tmp_path)

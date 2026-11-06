@@ -3,6 +3,7 @@
 from flask import Blueprint, jsonify, current_app, request
 from pathlib import Path
 import json
+from litfoundry.filesystem import validate_contained_path
 
 bp = Blueprint("admin", __name__, url_prefix="/api/v1/admin")
 
@@ -51,7 +52,20 @@ def logs():
                 "filtered": 0
             }), 503
         
-        log_file = Path(data_root) / "logs" / "litfoundry.log"
+        data_root_path = Path(data_root)
+        
+        # Validate that the log file is contained within data_root
+        # (protects against symlink escapes)
+        try:
+            log_file = validate_contained_path(data_root_path, Path("logs") / "litfoundry.log")
+        except ValueError as e:
+            return jsonify({
+                "error": f"Path validation failed: {str(e)}",
+                "logs": [],
+                "total": 0,
+                "filtered": 0
+            }), 400
+        
         if not log_file.exists():
             return jsonify({
                 "logs": [],
