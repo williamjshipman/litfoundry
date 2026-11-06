@@ -230,3 +230,9 @@ class TestServeConfiguration:
                     assert response.status_code == 200, \
                         f"Readiness check failed; fix not working. Got {response.status_code}"
                     assert response.json["status"] == "ready"
+                
+                # Clean up logging handlers to release file locks
+                import logging
+                for handler in logging.root.handlers[:]:
+                    logging.root.removeHandler(handler)
+                    handler.close()

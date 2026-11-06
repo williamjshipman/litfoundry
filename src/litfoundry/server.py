@@ -1,11 +1,13 @@
 """Server startup and management."""
 
+import logging
 import os
 import sys
 from pathlib import Path
 
 from litfoundry.app import create_app
 from litfoundry.config import Config
+from litfoundry.logging import setup_logging
 
 
 def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
@@ -23,6 +25,17 @@ def start_server(root: Path, port: int = 5080, mode: str = "server") -> None:
     """
     # Validate the data root
     Config.validate_data_root(root)
+
+    # Set up structured logging
+    setup_logging(
+        root,
+        process_name="litfoundry-server",
+        level=logging.INFO,
+    )
+
+    # Log that server is starting
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting LitFoundry server initialization for {root}")
 
     # Check if data root is initialized; warn if not
     initialized_marker = root / ".initialized"

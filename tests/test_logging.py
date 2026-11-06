@@ -176,10 +176,44 @@ class TestRedactionFilter:
             args=(),
             exc_info=None,
         )
-        
+
         filt.filter(record)
-        
+
         assert "secretpass" not in record.getMessage()
+
+    def test_redaction_filter_redacts_exception_text(self):
+        """Redaction filter should redact secrets in exception text."""
+        filt = RedactionFilter()
+
+        # Create a log record with exception info containing secrets
+        try:
+            raise ValueError('Database password is "superSecret123"')
+        except ValueError:
+            import sys
+
+            exc_info = sys.exc_info()
+
+        record = logging.LogRecord(
+            name="test",
+            level=logging.ERROR,
+            pathname="",
+            lineno=0,
+            msg="An error occurred",
+            args=(),
+            exc_info=exc_info,
+        )
+
+        # Format the exception before filtering (this populates exc_text)
+        formatter = logging.Formatter()
+        record.exc_text = formatter.formatException(record.exc_info)
+
+        # Now apply the filter
+        filt.filter(record)
+
+        # Verify the secret is redacted in exc_text
+        assert record.exc_text is not None
+        assert "superSecret123" not in record.exc_text
+        assert "password" in record.exc_text.lower()  # Field name still there
 
 
 class TestJSONFormatter:
@@ -219,14 +253,16 @@ class TestJSONFormatter:
         
         result = formatter.format(record)
         parsed = json.loads(result)
-        
+
         assert "timestamp" in parsed
         assert "level" in parsed
+        assert "event" in parsed  # Required field
         assert "process" in parsed
         assert "logger" in parsed
         assert "message" in parsed
         assert parsed["level"] == "INFO"
         assert parsed["process"] == "test-process"
+        assert parsed["event"] == "test.module"  # event should be logger name
 
     def test_json_formatter_includes_request_id_when_present(self):
         """JSON formatter should include request_id if present."""

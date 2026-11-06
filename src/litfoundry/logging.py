@@ -36,17 +36,32 @@ class RedactionFilter(logging.Filter):
         (r'token\s*=\s*[^\s,;}\]]*', 'token=***'),
         (r'key\s*=\s*[^\s,;}\]]*', 'key=***'),
         (r'secret\s*=\s*[^\s,;}\]]*', 'secret=***'),
+        # Catch quoted passwords in exception messages (e.g., 'password is "SECRET"')
+        (r'(?i)password\s+is\s+"([^"]*)"', r'password is "***"'),
     ]
 
     def filter(self, record: LogRecord) -> bool:
-        """Redact sensitive information from the log record."""
+        """Redact sensitive information from the log record.
+
+        Applies redaction to:
+        - Message and formatted arguments
+        - Exception text and tracebacks
+        """
+        # Redact message
         msg = record.getMessage()
-        
         for pattern, replacement in self.REDACTION_PATTERNS:
             msg = re.sub(pattern, replacement, msg, flags=re.IGNORECASE)
-        
         record.msg = msg
         record.args = ()
+
+        # Redact exception text if present
+        # exc_text is the formatted exception string (including traceback)
+        if record.exc_text:
+            for pattern, replacement in self.REDACTION_PATTERNS:
+                record.exc_text = re.sub(
+                    pattern, replacement, record.exc_text, flags=re.IGNORECASE
+                )
+
         return True
 
 
@@ -63,27 +78,32 @@ class JSONFormatter(Formatter):
         self.process_name = process_name
 
     def format(self, record: LogRecord) -> str:
-        """Format a log record as JSON."""
-        # Format timestamp manually to ensure consistency
+        """Format a log record as JSON.
+
+        Ensures UTC timestamps and includes required event field.
+        """
+        # Format timestamp in UTC (Z suffix indicates UTC)
         import time
-        ct = self.converter(record.created)
+
+        ct = time.gmtime(record.created)  # Use gmtime for UTC, not localtime
         timestamp = time.strftime("%Y-%m-%dT%H:%M:%S", ct)
         # Add milliseconds manually
         milliseconds = int((record.created % 1) * 1000)
         timestamp = f"{timestamp}.{milliseconds:03d}Z"
-        
+
         log_obj: dict[str, Any] = {
             "timestamp": timestamp,
             "level": record.levelname,
+            "event": record.name,  # Required field for structured logging
             "process": self.process_name,
             "logger": record.name,
             "message": record.getMessage(),
         }
-        
+
         # Add optional fields if present
         if hasattr(record, "request_id") and record.request_id:
             log_obj["request_id"] = record.request_id
-        
+
         if hasattr(record, "job_id") and record.job_id:
             log_obj["job_id"] = record.job_id
         
