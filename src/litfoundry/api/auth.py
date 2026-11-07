@@ -309,13 +309,25 @@ def login():
         db_session.add(user)
         db_session.commit()
         
-        return jsonify({
+        # Create JWT tokens
+        from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies
+        
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
+        
+        response_data = jsonify({
             "user": {
                 "id": user.id,
                 "username": user.username,
                 "must_change_password": user.must_change_password
             }
-        }), 200
+        })
+        
+        # Set JWT cookies
+        set_access_cookies(response_data, access_token)
+        set_refresh_cookies(response_data, refresh_token)
+        
+        return response_data, 200
     
     except ApiError:
         raise

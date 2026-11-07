@@ -71,12 +71,16 @@ def admin_user_local(app, client, db_session):
     db_session.commit()
     db_session.refresh(admin)
     
-    # Login to get JWT token automatically set in cookies
+    # Login to get JWT token - the Flask test client will preserve cookies across requests
     response = client.post("/api/v1/auth/login", json={
         "username": "admin",
         "password": "AdminPass123"
     })
-    # If login fails, the tests will catch the error
+    
+    # Verify login was successful (200 OK)
+    if response.status_code != 200:
+        import pytest
+        pytest.fail(f"Login failed with status {response.status_code}: {response.get_json()}")
     
     return admin
 

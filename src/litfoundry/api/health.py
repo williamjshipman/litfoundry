@@ -27,11 +27,36 @@ def ready():
     - Configuration is valid
     
     This endpoint requires admin privileges. Unauthenticated requests return 401.
-    Admin check is implemented in m1-local-identity; until then, requests from
-    localhost are allowed for testing.
     """
-    # TODO: Once m1-local-identity lands, require admin authorization here
-    # For now, allow localhost (testing) and eventually require valid JWT with admin role
+    # Require admin authorization
+    from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+    from litfoundry.api.errors import ApiError
+    from sqlalchemy.orm import scoped_session
+    from litfoundry.catalog import User
+    
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+        
+        db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+        try:
+            user = db_session.query(User).filter_by(id=user_id).first()
+            if not user or user.role != "admin" or not user.active:
+                raise ApiError(
+                    code="FORBIDDEN",
+                    status=403,
+                    message="Admin access required"
+                )
+        finally:
+            db_session.remove()
+    except Exception as e:
+        if isinstance(e, ApiError):
+            raise
+        raise ApiError(
+            code="FORBIDDEN",
+            status=403,
+            message="Admin access required"
+        )
     
     try:
         # Check data root is set and accessible
