@@ -133,9 +133,17 @@ def is_bootstrap_token_expired(expires_at: datetime) -> bool:
     """Check if a bootstrap token has expired.
     
     Args:
-        expires_at: Token expiry time
+        expires_at: Token expiry time (can be naive or timezone-aware)
         
     Returns:
         True if expired, False otherwise
     """
-    return datetime.now(timezone.utc) >= expires_at
+    now = datetime.now(timezone.utc)
+    
+    # Ensure we're comparing like with like
+    if expires_at.tzinfo is None:
+        # expires_at is naive, make now naive too
+        return now.replace(tzinfo=None) >= expires_at
+    else:
+        # expires_at is aware, ensure now is too
+        return now >= expires_at

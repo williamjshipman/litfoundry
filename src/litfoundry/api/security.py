@@ -82,6 +82,10 @@ def check_origin(app) -> Optional[tuple]:
     if request.method not in ("POST", "PUT", "PATCH", "DELETE"):
         return None
     
+    # Exempt setup endpoints from origin check (they run before frontend exists)
+    if request.path.startswith("/api/v1/setup/"):
+        return None
+    
     # Get request origin
     origin = request.headers.get("Origin")
     if not origin:

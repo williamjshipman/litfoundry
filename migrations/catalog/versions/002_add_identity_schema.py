@@ -109,10 +109,12 @@ def upgrade() -> None:
         sa.Column("consumed_at", sa.DateTime(), nullable=True),
     )
     
-    # Unique constraint ensuring at most one unconsumed token
+    # Unique constraint ensuring at most one unconsumed token.
+    # Note: SQLite partial indexes cannot use non-deterministic functions like CURRENT_TIMESTAMP,
+    # so we only check consumed_at IS NULL. Application must verify expiry at use time.
     op.execute(
         "CREATE UNIQUE INDEX ix_bootstrap_tokens_unconsumed ON bootstrap_tokens (consumed_at) "
-        "WHERE consumed_at IS NULL AND expires_at > CURRENT_TIMESTAMP"
+        "WHERE consumed_at IS NULL"
     )
     
     # Create audit_events table (system audit trail)
