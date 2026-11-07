@@ -79,10 +79,11 @@ def create_app(config: dict | None = None) -> Flask:
     setup_security_middleware(app)
 
     # Register blueprints
-    from litfoundry.api import admin, health, auth
+    from litfoundry.api import admin, health, auth, ad_directory
 
     app.register_blueprint(health.bp)
     app.register_blueprint(admin.bp)
+    app.register_blueprint(ad_directory.bp)
     app.register_blueprint(auth.auth_bp)
     app.register_blueprint(auth.setup_bp)
 

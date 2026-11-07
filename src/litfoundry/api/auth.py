@@ -199,13 +199,13 @@ def setup_admin():
 def login():
     """Authenticate a user with username/password.
     
-    Currently supports local provider only.
+    Supports local and active_directory providers.
     
     Request body:
         {
             "username": "username",
             "password": "password",
-            "provider": "local"  # optional, defaults to "local"
+            "provider": "local"  # optional, defaults to "local"; can also be "active_directory"
         }
     
     Returns:
@@ -237,7 +237,8 @@ def login():
                 message="Username and password required"
             )
         
-        if provider_name != "local":
+        # Validate provider
+        if provider_name not in ("local", "active_directory"):
             raise ApiError(
                 code="VALIDATION_ERROR",
                 status=400,
@@ -255,6 +256,14 @@ def login():
             backoff_max_seconds=throttle_policy_dict.get("backoff_max_seconds", 900),
         )
         
+        # For AD throttling, use 3 per identifier per 15 minutes
+        ad_identifier_policy = ThrottlingPolicy(
+            max_attempts=3,
+            window_minutes=15,
+            backoff_base_seconds=throttle_policy_dict.get("backoff_base_seconds", 1.0),
+            backoff_max_seconds=throttle_policy_dict.get("backoff_max_seconds", 900),
+        )
+        
         identifier_policy = ThrottlingPolicy(
             max_attempts=throttle_policy_dict.get("per_identifier_max_attempts", 5),
             window_minutes=throttle_policy_dict.get("window_minutes", 15),
@@ -263,13 +272,16 @@ def login():
         )
         
         throttler = LoginThrottler(ip_policy, identifier_policy)
+        ad_throttler = LoginThrottler(ip_policy, ad_identifier_policy)
         
         # Check if admin account exists and if this is an admin login
         admin_user = db_session.query(User).filter_by(role="admin").first()
         is_admin_account = admin_user and admin_user.username.lower().strip() == username.lower().strip()
         
         # Check throttle (admin only checks per-IP, regular users check both)
-        throttle_check = throttler.check_throttle(
+        # Use AD throttler if provider is AD
+        active_throttler = ad_throttler if provider_name == "active_directory" else throttler
+        throttle_check = active_throttler.check_throttle(
             db_session, 
             client_ip, 
             identifier=username,
@@ -284,12 +296,29 @@ def login():
                 details={"retry_after_seconds": throttle_check["retry_after_seconds"]}
             )
         
-        # Verify credentials with local provider
-        provider = LocalProvider()
+        # Select provider and verify credentials
+        if provider_name == "active_directory":
+            from litfoundry.auth import ActiveDirectoryProvider
+            from litfoundry.catalog import DirectoryConfig
+            
+            # Check if AD is enabled
+            ad_config = db_session.query(DirectoryConfig).filter_by(id=1).first()
+            if not ad_config or not ad_config.enabled:
+                raise ApiError(
+                    code="AUTH_PROVIDER_DISABLED",
+                    status=403,
+                    message="Active Directory authentication is not available"
+                )
+            
+            provider = ActiveDirectoryProvider()
+        else:
+            provider = LocalProvider()
+        
+        # Verify credentials
         user = provider.verify_credentials(username, password, db_session)
         
         # Always record the attempt, even on failure (for throttling)
-        throttler.record_attempt(
+        active_throttler.record_attempt(
             db_session,
             client_ip,
             identifier=username,
@@ -298,21 +327,38 @@ def login():
         
         if not user:
             db_session.commit()  # Commit the throttle recording
-            raise ApiError(
-                code="FORBIDDEN",
-                status=403,
-                message="Invalid credentials"
-            )
+            # Return generic error message (same for AD and local)
+            if provider_name == "active_directory":
+                # Could be disabled account, locked account, or wrong password
+                # Return generic error to avoid enumeration
+                raise ApiError(
+                    code="FORBIDDEN",
+                    status=403,
+                    message="Invalid credentials"
+                )
+            else:
+                raise ApiError(
+                    code="FORBIDDEN",
+                    status=403,
+                    message="Invalid credentials"
+                )
         
         # Update last login
         user.last_login_at = datetime.now(timezone.utc)
         db_session.add(user)
         db_session.commit()
         
-        # Create JWT tokens
+        # Create JWT tokens (include directory_revision claim for AD users)
         from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies
         
-        access_token = create_access_token(identity=user.id)
+        additional_claims = {}
+        if provider_name == "active_directory":
+            from litfoundry.catalog import DirectoryConfig
+            ad_config = db_session.query(DirectoryConfig).filter_by(id=1).first()
+            if ad_config:
+                additional_claims["directory_revision"] = ad_config.directory_revision
+        
+        access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
         refresh_token = create_refresh_token(identity=user.id)
         
         response_data = jsonify({
@@ -337,6 +383,49 @@ def login():
             code="INTERNAL_ERROR",
             status=500,
             message="Login failed"
+        )
+    finally:
+        db_session.remove()
+
+
+@auth_bp.route("/methods", methods=["GET"])
+def get_auth_methods():
+    """Get the list of available authentication methods.
+    
+    No authentication required - this endpoint is part of the sign-in flow.
+    
+    Returns:
+        {
+            "methods": [
+                {"name": "local", "display_name": "Local Account"},
+                {"name": "active_directory", "display_name": "Active Directory"}  # if enabled
+            ]
+        }
+    """
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        from litfoundry.catalog import DirectoryConfig
+        
+        methods = [
+            {"name": "local", "display_name": "Local Account"}
+        ]
+        
+        # Check if AD is enabled
+        ad_config = db_session.query(DirectoryConfig).filter_by(id=1).first()
+        if ad_config and ad_config.enabled:
+            methods.append({
+                "name": "active_directory",
+                "display_name": "Active Directory"
+            })
+        
+        return jsonify({"methods": methods}), 200
+    
+    except Exception as e:
+        current_app.logger.exception("Failed to get auth methods")
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to get auth methods"
         )
     finally:
         db_session.remove()
@@ -430,17 +519,3 @@ def get_me():
             status=500,
             message="Failed to retrieve user information"
         )
-
-
-@auth_bp.route("/methods", methods=["GET"])
-def get_auth_methods():
-    """Get list of available authentication methods.
-    
-    Returns:
-        {
-            "methods": ["local"]  # will include "active_directory" when M2 is available
-        }
-    """
-    return jsonify({
-        "methods": ["local"]
-    }), 200

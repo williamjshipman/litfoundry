@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
+import json
 
 from sqlalchemy import ForeignKey, String, Integer, Boolean, DateTime, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -112,3 +113,49 @@ class AuditEvent(Base):
     
     # Relationship
     actor_user: Mapped[Optional["User"]] = relationship("User", back_populates="audit_events")
+
+
+class DirectoryConfig(Base):
+    """Active Directory configuration (single row when enabled)."""
+    
+    __tablename__ = "directory_config"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    domain_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    netbios_name: Mapped[Optional[str]] = mapped_column(String(15), nullable=True)
+    upn_suffixes_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    domain_controllers_json: Mapped[str] = mapped_column(Text, nullable=False)
+    base_dn: Mapped[str] = mapped_column(String(512), nullable=False)
+    tls_mode: Mapped[str] = mapped_column(String(16), nullable=False)  # 'ldaps' or 'starttls'
+    ca_bundle_pem_encrypted: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    connection_timeout_seconds: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    read_timeout_seconds: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    revalidation_interval_minutes: Mapped[int] = mapped_column(Integer, default=15, nullable=False)
+    grace_period_minutes: Mapped[int] = mapped_column(Integer, default=60, nullable=False)
+    service_account_username: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    service_account_password_encrypted: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    last_test_passed_revision: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    last_directory_success_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    directory_revision: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class DirectoryIdentityBinding(Base):
+    """Binding between a LitFoundry user and an Active Directory identity."""
+    
+    __tablename__ = "directory_identity_bindings"
+    
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    sid: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    guid: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    samaccountname_normalized: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    upn_normalized: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    
+    # Relationship
+    user: Mapped["User"] = relationship("User")
+

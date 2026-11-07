@@ -193,3 +193,10 @@ def create_user_with_password(
         updated_at=now,
     )
     return user
+
+
+# Import AD provider
+from litfoundry.auth.ad_provider import ActiveDirectoryProvider
+
+__all__ = ["IdentityProvider", "LocalProvider", "ActiveDirectoryProvider"]
+

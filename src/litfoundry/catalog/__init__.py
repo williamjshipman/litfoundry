@@ -9,6 +9,8 @@ from litfoundry.catalog.models import (
     RefreshToken,
     BootstrapToken,
     AuditEvent,
+    DirectoryConfig,
+    DirectoryIdentityBinding,
 )
 
 __all__ = [
@@ -21,4 +23,6 @@ __all__ = [
     "RefreshToken",
     "BootstrapToken",
     "AuditEvent",
+    "DirectoryConfig",
+    "DirectoryIdentityBinding",
 ]

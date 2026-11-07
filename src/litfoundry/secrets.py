@@ -146,3 +146,50 @@ class SecretManager:
         new_key = secrets.token_bytes(self.SIGNING_KEY_SIZE_BYTES)
         self.session_signing_key_path.write_bytes(new_key)
         return new_key
+
+
+# Global secret manager instance (lazy-initialized)
+_global_secret_manager: Optional[SecretManager] = None
+
+
+def _get_secret_manager() -> SecretManager:
+    """Get or initialize the global SecretManager."""
+    global _global_secret_manager
+    if _global_secret_manager is None:
+        from pathlib import Path
+        secret_material_dir = Path.home() / ".litfoundry" / "secret_material"
+        _global_secret_manager = SecretManager(secret_material_dir)
+        _global_secret_manager.ensure_keys_exist()
+    return _global_secret_manager
+
+
+def encrypt_secret(plaintext: str) -> str:
+    """Encrypt a secret string and return base64-encoded result.
+    
+    Args:
+        plaintext: Secret string to encrypt
+        
+    Returns:
+        Base64-encoded encrypted bytes
+    """
+    import base64
+    manager = _get_secret_manager()
+    encrypted_bytes = manager.encrypt(plaintext.encode("utf-8"))
+    return base64.b64encode(encrypted_bytes).decode("utf-8")
+
+
+def decrypt_secret(encrypted_str: str) -> str:
+    """Decrypt a base64-encoded secret string.
+    
+    Args:
+        encrypted_str: Base64-encoded encrypted bytes
+        
+    Returns:
+        Decrypted plaintext string
+    """
+    import base64
+    manager = _get_secret_manager()
+    encrypted_bytes = base64.b64decode(encrypted_str.encode("utf-8"))
+    plaintext_bytes = manager.decrypt(encrypted_bytes)
+    return plaintext_bytes.decode("utf-8")
+
