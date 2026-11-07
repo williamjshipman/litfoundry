@@ -159,3 +159,47 @@ class DirectoryIdentityBinding(Base):
     # Relationship
     user: Mapped["User"] = relationship("User")
 
+
+class ProjectDirectory(Base):
+    """Project metadata and lifecycle state in the catalogue."""
+    
+    __tablename__ = "project_directory"
+    
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    relative_path: Mapped[str] = mapped_column(String(512), nullable=False, unique=True)
+    owner_user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
+    public_access: Mapped[str] = mapped_column(String(16), default="none", nullable=False)  # none, viewer, editor
+    state_code: Mapped[str] = mapped_column(String(16), default="ready", nullable=False)  # provisioning, ready, archived, deleting, quarantined, error
+    project_schema_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    title: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    
+    # Relationship
+    owner: Mapped["User"] = relationship("User")
+
+
+class SystemLease(Base):
+    """Fenced system-wide lease for maintenance and backup operations."""
+    
+    __tablename__ = "system_leases"
+    
+    lease_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    holder_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    acquired_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
+class ProjectACL(Base):
+    """Per-project access control entry mapping users to roles."""
+    
+    __tablename__ = "project_acl"
+    
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("project_directory.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)  # viewer, editor, deny
+    granted_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
