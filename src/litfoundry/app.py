@@ -2,6 +2,7 @@
 
 from flask import Flask
 from flask_alembic import Alembic
+from flask_jwt_extended import JWTManager
 
 from litfoundry import __description__, __tagline__, __title__, __version__
 
@@ -41,6 +42,23 @@ def create_app(config: dict | None = None) -> Flask:
         Session = sessionmaker(bind=engine)
         app.config["DB_SESSION_FACTORY"] = scoped_session(Session)
         app.config["DATA_ROOT"] = Path(data_root)
+
+    # Configure JWT
+    app.config.setdefault("JWT_SECRET_KEY", app.config.get("SECRET_KEY", "dev-key-change-in-production"))
+    app.config.setdefault("JWT_TOKEN_LOCATION", ["cookies"])
+    app.config.setdefault("JWT_COOKIE_SECURE", True)  # HTTPS only
+    app.config.setdefault("JWT_COOKIE_CSRF_PROTECT", True)
+    app.config.setdefault("JWT_COOKIE_SAMESITE", "Lax")
+    app.config.setdefault("JWT_COOKIE_HTTPONLY", True)
+    app.config.setdefault("JWT_ALGORITHM", "HS256")
+    app.config.setdefault("JWT_ACCESS_TOKEN_EXPIRES", 15 * 60)  # 15 minutes
+    
+    # In testing mode, allow insecure cookies
+    if app.config.get("TESTING"):
+        app.config["JWT_COOKIE_SECURE"] = False
+
+    # Initialize JWT
+    JWTManager(app)
 
     # Use custom JSON encoder for UUID and datetime serialization
     from litfoundry.api.serialization import LitFoundryJSONEncoder

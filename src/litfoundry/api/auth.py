@@ -1,5 +1,6 @@
 """Authentication and setup API endpoints."""
 
+import json
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -15,6 +16,7 @@ from litfoundry.auth.bootstrap import (
     get_bootstrap_token_expiry_time,
     is_bootstrap_token_expired,
 )
+from litfoundry.auth.throttling import ThrottlingPolicy, LoginThrottler
 from litfoundry.catalog import User, BootstrapToken, AuthSettings
 
 
@@ -33,12 +35,20 @@ def get_or_create_auth_settings(session) -> AuthSettings:
     if not settings:
         # Create default auth settings
         now = datetime.now(timezone.utc)
+        # Default throttling policy: 10 attempts per IP per 15 minutes, 5 per username per 15 minutes
+        throttle_policy = {
+            "per_ip_max_attempts": 10,
+            "per_identifier_max_attempts": 5,
+            "window_minutes": 15,
+            "backoff_base_seconds": 1.0,
+            "backoff_max_seconds": 900,  # 15 minutes
+        }
         settings = AuthSettings(
             id=1,
             password_policy_json='{"min_length": 8}',
             access_token_minutes=15,
             refresh_token_hours=7*24,
-            throttle_policy_json='{"window_seconds": 300, "max_attempts": 5}',
+            throttle_policy_json=json.dumps(throttle_policy),
             revision=1,
             created_at=now,
             updated_at=now,
@@ -215,6 +225,11 @@ def login():
         password = data.get("password", "").strip()
         provider_name = data.get("provider", "local").strip()
         
+        # Get client IP address (handle proxies)
+        client_ip = request.remote_addr or "unknown"
+        if request.headers.get("X-Forwarded-For"):
+            client_ip = request.headers.get("X-Forwarded-For").split(",")[0].strip()
+        
         if not username or not password:
             raise ApiError(
                 code="VALIDATION_ERROR",
@@ -229,11 +244,60 @@ def login():
                 message=f"Provider '{provider_name}' not available"
             )
         
+        # Get auth settings and set up throttling
+        auth_settings = get_or_create_auth_settings(db_session)
+        throttle_policy_dict = json.loads(auth_settings.throttle_policy_json)
+        
+        ip_policy = ThrottlingPolicy(
+            max_attempts=throttle_policy_dict.get("per_ip_max_attempts", 10),
+            window_minutes=throttle_policy_dict.get("window_minutes", 15),
+            backoff_base_seconds=throttle_policy_dict.get("backoff_base_seconds", 1.0),
+            backoff_max_seconds=throttle_policy_dict.get("backoff_max_seconds", 900),
+        )
+        
+        identifier_policy = ThrottlingPolicy(
+            max_attempts=throttle_policy_dict.get("per_identifier_max_attempts", 5),
+            window_minutes=throttle_policy_dict.get("window_minutes", 15),
+            backoff_base_seconds=throttle_policy_dict.get("backoff_base_seconds", 1.0),
+            backoff_max_seconds=throttle_policy_dict.get("backoff_max_seconds", 900),
+        )
+        
+        throttler = LoginThrottler(ip_policy, identifier_policy)
+        
+        # Check if admin account exists and if this is an admin login
+        admin_user = db_session.query(User).filter_by(role="admin").first()
+        is_admin_account = admin_user and admin_user.username.lower().strip() == username.lower().strip()
+        
+        # Check throttle (admin only checks per-IP, regular users check both)
+        throttle_check = throttler.check_throttle(
+            db_session, 
+            client_ip, 
+            identifier=username,
+            is_admin=is_admin_account
+        )
+        
+        if throttle_check["throttled"]:
+            raise ApiError(
+                code="AUTH_THROTTLED",
+                status=429,
+                message="Too many login attempts. Please try again later.",
+                details={"retry_after_seconds": throttle_check["retry_after_seconds"]}
+            )
+        
         # Verify credentials with local provider
         provider = LocalProvider()
         user = provider.verify_credentials(username, password, db_session)
         
+        # Always record the attempt, even on failure (for throttling)
+        throttler.record_attempt(
+            db_session,
+            client_ip,
+            identifier=username,
+            is_admin=is_admin_account
+        )
+        
         if not user:
+            db_session.commit()  # Commit the throttle recording
             raise ApiError(
                 code="FORBIDDEN",
                 status=403,
@@ -276,17 +340,84 @@ def get_me():
         {
             "id": "user-uuid",
             "username": "username",
+            "display_name": "Display Name",
             "must_change_password": false,
-            "role": "admin"
+            "role": "admin",
+            "provider": "local"
         }
     """
-    # TODO: Implement JWT validation and user retrieval
-    # This will be done in task 4.4 along with session setup
-    raise ApiError(
-        code="INTERNAL_ERROR",
-        status=500,
-        message="Not yet implemented"
-    )
+    from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request
+    
+    # Verify JWT manually so we can provide better errors
+    try:
+        verify_jwt_in_request()
+    except Exception as e:
+        raise ApiError(
+            code="UNAUTHENTICATED",
+            status=401,
+            message="Invalid or missing token"
+        )
+    
+    try:
+        jwt_data = get_jwt()
+        user_id = jwt_data.get("user_id") or get_jwt_identity()
+        
+        if not user_id:
+            raise ApiError(
+                code="UNAUTHENTICATED",
+                status=401,
+                message="Invalid token"
+            )
+        
+        db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+        try:
+            # Check user still exists and is active
+            user = db_session.query(User).filter_by(id=user_id).first()
+            if not user or not user.active:
+                raise ApiError(
+                    code="UNAUTHENTICATED",
+                    status=401,
+                    message="User not found or inactive"
+                )
+            
+            # Revalidate session version and auth settings revision
+            user_sv = jwt_data.get("sv")
+            if user_sv is not None and user_sv != user.session_version:
+                raise ApiError(
+                    code="UNAUTHENTICATED",
+                    status=401,
+                    message="Session invalidated by password change"
+                )
+            
+            auth_settings = get_or_create_auth_settings(db_session)
+            user_ar = jwt_data.get("ar")
+            if user_ar is not None and user_ar != auth_settings.revision:
+                raise ApiError(
+                    code="UNAUTHENTICATED",
+                    status=401,
+                    message="Session invalidated by settings change"
+                )
+            
+            return jsonify({
+                "id": user.id,
+                "username": user.username,
+                "display_name": user.username,  # Can be extended later for full names
+                "must_change_password": user.must_change_password,
+                "role": user.role,
+                "provider": user.account_type,
+            }), 200
+        finally:
+            db_session.remove()
+    
+    except ApiError:
+        raise
+    except Exception as e:
+        current_app.logger.exception("Failed to get user info")
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to retrieve user information"
+        )
 
 
 @auth_bp.route("/methods", methods=["GET"])

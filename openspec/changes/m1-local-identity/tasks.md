@@ -17,20 +17,20 @@
 
 - [x] 3.1 Implement `POST /api/v1/auth/login` for the local provider, with a default provider, generic failures and username normalisation. Verify with API tests for case-insensitivity, unknown versus wrong password parity, invalid usernames and a rejected contact-email identifier (§19 group 2).
 - [x] 3.2 Implement the password policy, the forced-change gate and `PUT /api/v1/auth/password`, which revokes other sessions. Verify with API tests.
-- [ ] 3.3 Implement throttling per IP and per identifier, with `admin` limited per IP only, returning 429 `AUTH_THROTTLED`. Verify with tests showing that `admin` signs in from a second IP while the first is throttled (§19 group 1).
-- [ ] 3.4 Implement `GET`/`PUT /api/v1/admin/auth-settings` for policy, lifetimes and throttling, with a revision bump when a change invalidates sessions. Verify with API tests.
+- [x] 3.3 Implement throttling per IP and per identifier, with `admin` limited per IP only, returning 429 `AUTH_THROTTLED`. Verify with tests showing that `admin` signs in from a second IP while the first is throttled (§19 group 1).
+- [x] 3.4 Implement `GET`/`PUT /api/v1/admin/auth-settings` for policy, lifetimes and throttling, with a revision bump when a change invalidates sessions. Verify with API tests.
 
 ## 4. Sessions
 
-- [ ] 4.1 Configure the JWT cookies (flags per run mode), CSRF double-submit and the conversion of CSRF failures to 403. Verify with cookie-flag tests for both modes and a missing-CSRF test (§19 group 14).
-- [ ] 4.2 Implement refresh rotation with family revocation on reuse, and logout. Verify with API tests.
-- [ ] 4.3 Implement per-request revalidation (active, `sv`, `ar`). Verify with tests for disable, password change and settings revision taking effect on the next request.
-- [ ] 4.4 Implement `GET /api/v1/auth/me` and `GET /api/v1/auth/methods`. Verify with API tests, including a check that the method selector is hidden when only local sign-in exists.
+- [x] 4.1 Configure the JWT cookies (flags per run mode), CSRF double-submit and the conversion of CSRF failures to 403. Verify with cookie-flag tests for both modes and a missing-CSRF test (§19 group 14).
+- [x] 4.2 Implement refresh rotation with family revocation on reuse, and logout. Verify with API tests.
+- [x] 4.3 Implement per-request revalidation (active, `sv`, `ar`). Verify with tests for disable, password change and settings revision taking effect on the next request.
+- [x] 4.4 Implement `GET /api/v1/auth/me` and `GET /api/v1/auth/methods`. Verify with API tests, including a check that the method selector is hidden when only local sign-in exists.
 - [ ] 4.5 Build the sign-in page and the forced password-change page in the GUI. Verify with Playwright tests, including a check that no token is in web storage.
 
 ## 5. User administration and audit
 
-- [ ] 5.1 Implement `GET`/`POST /api/v1/admin/users`, `PATCH /api/v1/admin/users/{user_id}`, reset-password and revoke-sessions for local accounts. Verify with API tests for admin-only access, duplicate usernames, rejected direct account-type changes through PATCH (the conversion action arrives in `m2-active-directory`), and a route scan showing that no endpoint creates accounts except the admin ones.
+- [x] 5.1 Implement `GET`/`POST /api/v1/admin/users`, `PATCH /api/v1/admin/users/{user_id}`, reset-password and revoke-sessions for local accounts. Verify with API tests for admin-only access, duplicate usernames, rejected direct account-type changes through PATCH (the conversion action arrives in `m2-active-directory`), and a route scan showing that no endpoint creates accounts except the admin ones.
 - [ ] 5.2 Build Admin → Users (list, create, enable/disable, reset, revoke with confirmations). Verify with a Playwright test in which the admin creates a local user who then signs in (§19 group 12, local part).
 - [ ] 5.3 Write audit events for the listed actions and implement `GET /api/v1/admin/audit-events` with filters and Admin → Audit. Verify with API tests for each audited action and admin-only access, plus a test that DELETE and PATCH on audit URLs are rejected.
 - [ ] 5.4 Re-verify the admin-only checks on `/api/v1/health/ready` and `/api/v1/admin/logs` from `m1-platform-foundation`, now that identity exists. Verify with API tests.

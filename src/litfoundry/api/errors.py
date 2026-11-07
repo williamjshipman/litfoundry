@@ -21,6 +21,7 @@ ERROR_CODES = {
     "RECORD_LOCKED": 409,
     "PROJECT_BUSY": 409,
     "QUOTA_EXCEEDED": 409,
+    "AUTH_THROTTLED": 429,
     "PAYLOAD_TOO_LARGE": 413,
     "MAINTENANCE_IN_PROGRESS": 503,
     "INTERNAL_ERROR": 500,
@@ -74,6 +75,11 @@ def handle_api_error(error: ApiError) -> Response:
     response = jsonify(error.to_dict(request_id))
     response.status_code = error.status
     response.headers["X-Request-ID"] = request_id
+    
+    # Add Retry-After header for throttled responses
+    if error.code == "AUTH_THROTTLED" and error.details.get("retry_after_seconds"):
+        response.headers["Retry-After"] = str(error.details["retry_after_seconds"])
+    
     return response
 
 

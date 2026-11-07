@@ -1,11 +1,720 @@
 """Admin endpoints."""
 
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, current_app, request
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from pathlib import Path
 import json
+from uuid import uuid4
+from sqlalchemy.orm import scoped_session
+from sqlalchemy import or_
 from litfoundry.filesystem import validate_contained_path
+from litfoundry.api.errors import ApiError
+from litfoundry.auth.sessions import get_or_create_auth_settings, revoke_user_sessions
+from litfoundry.catalog import AuthSettings, User, AuditEvent
 
 bp = Blueprint("admin", __name__, url_prefix="/api/v1/admin")
+
+
+def require_admin():
+    """Verify that the current user is an admin. Raise 403 if not."""
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+        
+        db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+        try:
+            user = db_session.query(User).filter_by(id=user_id).first()
+            if not user or user.role != "admin" or not user.active:
+                raise ApiError(
+                    code="FORBIDDEN",
+                    status=403,
+                    message="Admin access required"
+                )
+        finally:
+            db_session.remove()
+    except Exception as e:
+        if isinstance(e, ApiError):
+            raise
+        raise ApiError(
+            code="FORBIDDEN",
+            status=403,
+            message="Admin access required"
+        )
+
+
+def log_audit_event(action: str, resource_type: str, resource_id: str = None, 
+                     details: str = None, status: str = "success", error_message: str = None):
+    """Log an audit event for an admin action."""
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        try:
+            verify_jwt_in_request()
+            actor_user_id = get_jwt_identity()
+        except:
+            actor_user_id = None
+        
+        request_id = request.headers.get("X-Request-ID", str(uuid4()))
+        ip_address = request.remote_addr or "unknown"
+        
+        event = AuditEvent(
+            id=str(uuid4()),
+            actor_user_id=actor_user_id,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            details=details,
+            status=status,
+            error_message=error_message,
+            request_id=request_id,
+            ip_address=ip_address,
+            created_at=datetime.now(timezone.utc)
+        )
+        db_session.add(event)
+        db_session.commit()
+    except Exception as e:
+        current_app.logger.warning(f"Failed to log audit event: {str(e)}")
+    finally:
+        db_session.remove()
+
+
+@bp.route("/auth-settings", methods=["GET"])
+def get_auth_settings():
+    """Get authentication settings (policy, lifetimes, throttling).
+    
+    Admin-only endpoint.
+    
+    Returns:
+        {
+            "password_policy": {"min_length": 8, ...},
+            "access_token_minutes": 15,
+            "refresh_token_hours": 168,
+            "throttle_policy": {
+                "per_ip_max_attempts": 10,
+                "per_identifier_max_attempts": 5,
+                "window_minutes": 15,
+                ...
+            },
+            "revision": 1
+        }
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        settings = get_or_create_auth_settings(db_session)
+        
+        return jsonify({
+            "password_policy": json.loads(settings.password_policy_json),
+            "access_token_minutes": settings.access_token_minutes,
+            "refresh_token_hours": settings.refresh_token_hours,
+            "throttle_policy": json.loads(settings.throttle_policy_json),
+            "revision": settings.revision,
+        }), 200
+    finally:
+        db_session.remove()
+
+
+@bp.route("/auth-settings", methods=["PUT"])
+def update_auth_settings():
+    """Update authentication settings.
+    
+    Admin-only endpoint. Changes to settings invalidate existing sessions
+    (via revision bump).
+    
+    Request body:
+        {
+            "password_policy": {"min_length": 8, ...},
+            "access_token_minutes": 15,
+            "refresh_token_hours": 168,
+            "throttle_policy": {...}
+        }
+    
+    Returns:
+        Updated settings with new revision
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        data = request.get_json() or {}
+        settings = get_or_create_auth_settings(db_session)
+        
+        # Update fields that were provided
+        if "password_policy" in data:
+            settings.password_policy_json = json.dumps(data["password_policy"])
+        
+        if "access_token_minutes" in data:
+            try:
+                minutes = int(data["access_token_minutes"])
+                if minutes < 1 or minutes > 60 * 24:  # 1 minute to 1 day
+                    raise ValueError("access_token_minutes must be between 1 and 1440")
+                settings.access_token_minutes = minutes
+            except (TypeError, ValueError) as e:
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message=f"Invalid access_token_minutes: {str(e)}"
+                )
+        
+        if "refresh_token_hours" in data:
+            try:
+                hours = int(data["refresh_token_hours"])
+                if hours < 1 or hours > 365 * 24:  # 1 hour to 1 year
+                    raise ValueError("refresh_token_hours must be between 1 and 8760")
+                settings.refresh_token_hours = hours
+            except (TypeError, ValueError) as e:
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message=f"Invalid refresh_token_hours: {str(e)}"
+                )
+        
+        if "throttle_policy" in data:
+            settings.throttle_policy_json = json.dumps(data["throttle_policy"])
+        
+        # Bump revision to invalidate sessions
+        settings.revision += 1
+        settings.updated_at = datetime.now(timezone.utc)
+        db_session.add(settings)
+        db_session.commit()
+        
+        return jsonify({
+            "password_policy": json.loads(settings.password_policy_json),
+            "access_token_minutes": settings.access_token_minutes,
+            "refresh_token_hours": settings.refresh_token_hours,
+            "throttle_policy": json.loads(settings.throttle_policy_json),
+            "revision": settings.revision,
+        }), 200
+    
+    except ApiError:
+        raise
+    except Exception as e:
+        current_app.logger.exception("Failed to update auth settings")
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to update auth settings"
+        )
+    finally:
+        db_session.remove()
+
+
+@bp.route("/users", methods=["GET"])
+def list_users():
+    """List all users.
+    
+    Admin-only endpoint.
+    
+    Returns:
+        Array of user objects with id, username, account_type, role, active, last_login_at
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        users = db_session.query(User).all()
+        
+        return jsonify([{
+            "id": user.id,
+            "username": user.username,
+            "account_type": user.account_type,
+            "role": user.role,
+            "active": user.active,
+            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat(),
+        } for user in users]), 200
+    finally:
+        db_session.remove()
+
+
+@bp.route("/users", methods=["POST"])
+def create_user():
+    """Create a new local user.
+    
+    Admin-only endpoint.
+    
+    Request body:
+        {
+            "username": "newuser",
+            "password": "SecurePass123",
+            "display_name": "New User",
+            "role": "user"
+        }
+    
+    Returns:
+        Created user object
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        data = request.get_json() or {}
+        
+        # Validate required fields
+        if not data.get("username"):
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="username is required"
+            )
+        
+        if not data.get("password"):
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="password is required"
+            )
+        
+        username = data.get("username", "").strip()
+        password = data.get("password", "")
+        role = data.get("role", "user").lower()
+        
+        # Validate username
+        if not username or len(username) > 255:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="username must be 1-255 characters"
+            )
+        
+        # Normalize username (lowercase for uniqueness check)
+        username_normalized = username.lower()
+        
+        # Check for duplicate username (case-insensitive)
+        existing = db_session.query(User).filter_by(
+            account_type="local",
+            username_normalized=username_normalized
+        ).first()
+        
+        if existing:
+            raise ApiError(
+                code="DUPLICATE_USERNAME",
+                status=409,
+                message="Username already exists"
+            )
+        
+        # Validate role
+        if role not in ["admin", "user"]:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="role must be 'admin' or 'user'"
+            )
+        
+        # Get LocalProvider and hash password
+        from litfoundry.auth import get_password_hasher
+        hasher = get_password_hasher()
+        password_hash = hasher.hash(password)
+        
+        # Create the user
+        user = User(
+            id=str(uuid4()),
+            account_type="local",
+            username=username,
+            username_normalized=username_normalized,
+            password_hash=password_hash,
+            must_change_password=False,
+            role=role,
+            active=True,
+            session_version=0,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc)
+        )
+        
+        db_session.add(user)
+        db_session.commit()
+        
+        # Log audit event
+        log_audit_event(
+            action="create_user",
+            resource_type="user",
+            resource_id=user.id,
+            details=json.dumps({"username": username, "role": role})
+        )
+        
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "account_type": user.account_type,
+            "role": user.role,
+            "active": user.active,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat(),
+        }), 201
+    
+    except ApiError:
+        raise
+    except Exception as e:
+        current_app.logger.exception("Failed to create user")
+        log_audit_event(
+            action="create_user",
+            resource_type="user",
+            status="failure",
+            error_message=str(e)
+        )
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to create user"
+        )
+    finally:
+        db_session.remove()
+
+
+@bp.route("/users/<user_id>", methods=["PATCH"])
+def update_user(user_id):
+    """Update a user's properties.
+    
+    Admin-only endpoint. Direct account_type changes through PATCH are rejected
+    (conversions come through dedicated actions).
+    
+    Request body:
+        {
+            "active": true,
+            "role": "user"
+        }
+    
+    Returns:
+        Updated user object
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        data = request.get_json() or {}
+        
+        user = db_session.query(User).filter_by(id=user_id).first()
+        if not user:
+            raise ApiError(
+                code="NOT_FOUND",
+                status=404,
+                message="User not found"
+            )
+        
+        # Admin cannot be disabled or role changed through PATCH
+        if user.role == "admin" and user.username == "admin":
+            if "active" in data and not data["active"]:
+                raise ApiError(
+                    code="FORBIDDEN",
+                    status=403,
+                    message="Cannot disable the admin account"
+                )
+            if "role" in data and data["role"] != "admin":
+                raise ApiError(
+                    code="FORBIDDEN",
+                    status=403,
+                    message="Cannot change role of the admin account"
+                )
+        
+        # Reject direct account_type changes
+        if "account_type" in data:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="Cannot change account_type directly (use dedicated actions)"
+            )
+        
+        # Update fields
+        if "active" in data:
+            user.active = bool(data["active"])
+        
+        if "role" in data:
+            role = data["role"].lower()
+            if role not in ["admin", "user"]:
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="role must be 'admin' or 'user'"
+                )
+            user.role = role
+        
+        user.updated_at = datetime.now(timezone.utc)
+        db_session.add(user)
+        db_session.commit()
+        
+        # Log audit event
+        log_audit_event(
+            action="update_user",
+            resource_type="user",
+            resource_id=user.id,
+            details=json.dumps(data)
+        )
+        
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "account_type": user.account_type,
+            "role": user.role,
+            "active": user.active,
+            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat(),
+        }), 200
+    
+    except ApiError:
+        raise
+    except Exception as e:
+        current_app.logger.exception("Failed to update user")
+        log_audit_event(
+            action="update_user",
+            resource_type="user",
+            resource_id=user_id,
+            status="failure",
+            error_message=str(e)
+        )
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to update user"
+        )
+    finally:
+        db_session.remove()
+
+
+@bp.route("/users/<user_id>/reset-password", methods=["POST"])
+def reset_user_password(user_id):
+    """Reset a user's password and revoke their sessions.
+    
+    Admin-only endpoint.
+    
+    Request body:
+        {
+            "password": "NewSecurePass123"
+        }
+    
+    Returns:
+        Updated user object
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        data = request.get_json() or {}
+        
+        if not data.get("password"):
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="password is required"
+            )
+        
+        user = db_session.query(User).filter_by(id=user_id).first()
+        if not user:
+            raise ApiError(
+                code="NOT_FOUND",
+                status=404,
+                message="User not found"
+            )
+        
+        if user.account_type != "local":
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="Cannot reset password for non-local accounts"
+            )
+        
+        # Hash new password
+        from litfoundry.auth import get_password_hasher
+        hasher = get_password_hasher()
+        password_hash = hasher.hash(data["password"])
+        user.password_hash = password_hash
+        user.must_change_password = False
+        user.session_version += 1
+        user.updated_at = datetime.now(timezone.utc)
+        db_session.add(user)
+        db_session.commit()
+        
+        # Revoke all sessions for this user
+        revoke_user_sessions(user_id)
+        
+        # Log audit event
+        log_audit_event(
+            action="reset_password",
+            resource_type="user",
+            resource_id=user_id
+        )
+        
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "account_type": user.account_type,
+            "role": user.role,
+            "active": user.active,
+            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat(),
+        }), 200
+    
+    except ApiError:
+        raise
+    except Exception as e:
+        current_app.logger.exception("Failed to reset password")
+        log_audit_event(
+            action="reset_password",
+            resource_type="user",
+            resource_id=user_id,
+            status="failure",
+            error_message=str(e)
+        )
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to reset password"
+        )
+    finally:
+        db_session.remove()
+
+
+@bp.route("/users/<user_id>/revoke-sessions", methods=["POST"])
+def revoke_user_sessions_endpoint(user_id):
+    """Revoke all sessions for a user (force logout).
+    
+    Admin-only endpoint.
+    
+    Returns:
+        Updated user object
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        user = db_session.query(User).filter_by(id=user_id).first()
+        if not user:
+            raise ApiError(
+                code="NOT_FOUND",
+                status=404,
+                message="User not found"
+            )
+        
+        # Increment session_version to invalidate all sessions
+        user.session_version += 1
+        user.updated_at = datetime.now(timezone.utc)
+        db_session.add(user)
+        db_session.commit()
+        
+        # Revoke refresh tokens
+        revoke_user_sessions(user_id)
+        
+        # Log audit event
+        log_audit_event(
+            action="revoke_sessions",
+            resource_type="user",
+            resource_id=user_id
+        )
+        
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "account_type": user.account_type,
+            "role": user.role,
+            "active": user.active,
+            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat(),
+        }), 200
+    
+    except ApiError:
+        raise
+    except Exception as e:
+        current_app.logger.exception("Failed to revoke sessions")
+        log_audit_event(
+            action="revoke_sessions",
+            resource_type="user",
+            resource_id=user_id,
+            status="failure",
+            error_message=str(e)
+        )
+        raise ApiError(
+            code="INTERNAL_ERROR",
+            status=500,
+            message="Failed to revoke sessions"
+        )
+    finally:
+        db_session.remove()
+
+
+@bp.route("/audit-events", methods=["GET"])
+def get_audit_events():
+    """Get audit events with optional filters.
+    
+    Admin-only endpoint.
+    
+    Query parameters:
+    - action: Filter by action (e.g., 'create_user', 'reset_password')
+    - resource_type: Filter by resource type (e.g., 'user', 'auth_settings')
+    - resource_id: Filter by resource ID
+    - actor_user_id: Filter by actor user ID
+    - status: Filter by status ('success' or 'failure')
+    - limit: Maximum number of events to return (default: 100, max: 1000)
+    - offset: Number of events to skip (default: 0)
+    
+    Returns:
+        Array of audit events
+    """
+    require_admin()
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        # Get query parameters
+        action_filter = request.args.get("action")
+        resource_type_filter = request.args.get("resource_type")
+        resource_id_filter = request.args.get("resource_id")
+        actor_user_id_filter = request.args.get("actor_user_id")
+        status_filter = request.args.get("status")
+        
+        try:
+            limit = int(request.args.get("limit", 100))
+            limit = min(limit, 1000)
+        except (ValueError, TypeError):
+            limit = 100
+        
+        try:
+            offset = int(request.args.get("offset", 0))
+        except (ValueError, TypeError):
+            offset = 0
+        
+        # Build query
+        query = db_session.query(AuditEvent)
+        
+        if action_filter:
+            query = query.filter_by(action=action_filter)
+        if resource_type_filter:
+            query = query.filter_by(resource_type=resource_type_filter)
+        if resource_id_filter:
+            query = query.filter_by(resource_id=resource_id_filter)
+        if actor_user_id_filter:
+            query = query.filter_by(actor_user_id=actor_user_id_filter)
+        if status_filter:
+            query = query.filter_by(status=status_filter)
+        
+        # Get total count
+        total = query.count()
+        
+        # Get events (most recent first)
+        events = query.order_by(AuditEvent.created_at.desc()).limit(limit).offset(offset).all()
+        
+        return jsonify({
+            "events": [{
+                "id": event.id,
+                "actor_user_id": event.actor_user_id,
+                "action": event.action,
+                "resource_type": event.resource_type,
+                "resource_id": event.resource_id,
+                "details": json.loads(event.details) if event.details else None,
+                "status": event.status,
+                "error_message": event.error_message,
+                "request_id": event.request_id,
+                "ip_address": event.ip_address,
+                "created_at": event.created_at.isoformat(),
+            } for event in events],
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        }), 200
+    finally:
+        db_session.remove()
 
 
 @bp.route("/logs", methods=["GET"])
