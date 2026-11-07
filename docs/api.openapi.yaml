@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: LitFoundry API
+  version: "1.0"
+  description: |
+    LitFoundry REST API v1.0
+    
+    # Common Response Envelope
+    
+    All API responses are JSON. Error responses include a `code`, `message`, and `request_id`.
+    
+    # Error Codes
+    
+    The API uses standardized error codes mapped to HTTP status:
+    
+    - `VALIDATION_ERROR` (400): Request body or parameters are invalid
+    - `UNAUTHENTICATED` (401): Missing or invalid authentication
+    - `FORBIDDEN` (403): Authenticated user lacks permission
+    - `NOT_FOUND` (404): Resource does not exist
+    - `CONFLICT` (409): Resource has been modified (optimistic concurrency)
+    - `RECORD_LOCKED` (409): Record is locked by another operation
+    - `PROJECT_BUSY` (409): Project is busy with another operation
+    - `QUOTA_EXCEEDED` (409): Operation would exceed a quota
+    - `PAYLOAD_TOO_LARGE` (413): Request body exceeds size limit
+    - `INTERNAL_ERROR` (500): Unexpected server error
+    - `MAINTENANCE_IN_PROGRESS` (503): Server is in maintenance mode
+    
+    # Pagination
+    
+    Collection endpoints support cursor-based pagination:
+    - `?limit=<n>`: Max items per page (default 50, max 500)
+    - `?cursor=<cursor>`: Opaque cursor for next page
+    
+    # Concurrency Control
+    
+    Editable resources expose a revision via `ETag: W/"<revision>"`.
+    Updates require `If-Match: W/"<revision>"`. Stale revisions return 409 CONFLICT.
+
+servers:
+  - url: /api/v1
+    description: LitFoundry v1 API
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      tags:
+        - System
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ["healthy"]
+                  timestamp:
+                    type: string
+                    format: date-time
+                required:
+                  - status
+                  - timestamp
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error message
+        request_id:
+          type: string
+          format: uuid
+          description: Request ID for tracing
+        details:
+          type: object
+          description: Optional error details
+      required:
+        - code
+        - message
+        - request_id
+
+    UUID:
+      type: string
+      format: uuid
+      description: RFC 4122 UUID
+
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO-8601 UTC timestamp with Z suffix
+      example: "2024-01-15T10:30:45Z"
+
+    PaginationParams:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Items per page (default 50, max 500)
+          minimum: 1
+          maximum: 500
+          default: 50
+        cursor:
+          type: string
+          description: Opaque cursor for next page

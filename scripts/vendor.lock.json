@@ -1,0 +1,20 @@
+{
+  "vue": {
+    "version": "3.4.21",
+    "files": {
+      "vue.runtime.esm-browser.prod.js": "sha256:placeholder_vue"
+    }
+  },
+  "axios": {
+    "version": "1.6.7",
+    "files": {
+      "axios.min.js": "sha256:placeholder_axios"
+    }
+  },
+  "echarts": {
+    "version": "5.4.3",
+    "files": {
+      "echarts.min.js": "sha256:placeholder_echarts"
+    }
+  }
+}

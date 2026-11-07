@@ -20,8 +20,27 @@ def create_app(config: dict | None = None) -> Flask:
     if config:
         app.config.update(config)
 
+    # Set request size limits (default 16MB for JSON, 512MB for uploads)
+    app.config.setdefault("MAX_CONTENT_LENGTH", 512 * 1024 * 1024)  # 512MB for uploads
+    app.config.setdefault("JSON_PAYLOAD_MAX_SIZE", 16 * 1024 * 1024)  # 16MB for JSON
+
+    # Use custom JSON encoder for UUID and datetime serialization
+    from litfoundry.api.serialization import LitFoundryJSONEncoder
+    
+    app.json_encoder_class = LitFoundryJSONEncoder
+
     # Initialize Flask-Alembic for migrations
     Alembic(app)
+
+    # Setup error handlers (must be before middleware and blueprints)
+    from litfoundry.api.errors import setup_error_handlers
+    
+    setup_error_handlers(app)
+
+    # Setup security middleware (before blueprints)
+    from litfoundry.api.security import setup_security_middleware
+    
+    setup_security_middleware(app)
 
     # Register blueprints
     from litfoundry.api import admin, health
