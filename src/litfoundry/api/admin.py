@@ -231,15 +231,24 @@ def list_users():
 
 @bp.route("/users", methods=["POST"])
 def create_user():
-    """Create a new local user.
+    """Create a new user (local or Active Directory).
     
     Admin-only endpoint.
     
-    Request body:
+    Request body for local user:
         {
             "username": "newuser",
             "password": "SecurePass123",
-            "display_name": "New User",
+            "role": "user",
+            "account_type": "local"  # optional, defaults to "local"
+        }
+    
+    Request body for AD user:
+        {
+            "account_type": "active_directory",
+            "sid": "S-1-5-21-...",  # required for AD users
+            "upn": "user@domain.com",  # optional but recommended
+            "samaccountname": "username",  # optional
             "role": "user"
         }
     
@@ -251,49 +260,8 @@ def create_user():
     db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
     try:
         data = request.get_json() or {}
-        
-        # Validate required fields
-        if not data.get("username"):
-            raise ApiError(
-                code="VALIDATION_ERROR",
-                status=400,
-                message="username is required"
-            )
-        
-        if not data.get("password"):
-            raise ApiError(
-                code="VALIDATION_ERROR",
-                status=400,
-                message="password is required"
-            )
-        
-        username = data.get("username", "").strip()
-        password = data.get("password", "")
+        account_type = data.get("account_type", "local").lower()
         role = data.get("role", "user").lower()
-        
-        # Validate username
-        if not username or len(username) > 255:
-            raise ApiError(
-                code="VALIDATION_ERROR",
-                status=400,
-                message="username must be 1-255 characters"
-            )
-        
-        # Normalize username (lowercase for uniqueness check)
-        username_normalized = username.lower()
-        
-        # Check for duplicate username (case-insensitive)
-        existing = db_session.query(User).filter_by(
-            account_type="local",
-            username_normalized=username_normalized
-        ).first()
-        
-        if existing:
-            raise ApiError(
-                code="DUPLICATE_USERNAME",
-                status=409,
-                message="Username already exists"
-            )
         
         # Validate role
         if role not in ["admin", "user"]:
@@ -303,46 +271,206 @@ def create_user():
                 message="role must be 'admin' or 'user'"
             )
         
-        # Get LocalProvider and hash password
-        from litfoundry.auth import get_password_hasher
-        hasher = get_password_hasher()
-        password_hash = hasher.hash(password)
+        if account_type == "local":
+            # Local user creation
+            if not data.get("username"):
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="username is required for local accounts"
+                )
+            
+            if not data.get("password"):
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="password is required for local accounts"
+                )
+            
+            username = data.get("username", "").strip()
+            password = data.get("password", "")
+            
+            # Validate username
+            if not username or len(username) > 255:
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="username must be 1-255 characters"
+                )
+            
+            # Normalize username (lowercase for uniqueness check)
+            username_normalized = username.lower()
+            
+            # Check for duplicate username (case-insensitive)
+            existing = db_session.query(User).filter_by(
+                account_type="local",
+                username_normalized=username_normalized
+            ).first()
+            
+            if existing:
+                raise ApiError(
+                    code="DUPLICATE_USERNAME",
+                    status=409,
+                    message="Username already exists"
+                )
+            
+            # Get LocalProvider and hash password
+            from litfoundry.auth import get_password_hasher
+            hasher = get_password_hasher()
+            password_hash = hasher.hash(password)
+            
+            # Create the user
+            user = User(
+                id=str(uuid4()),
+                account_type="local",
+                username=username,
+                username_normalized=username_normalized,
+                password_hash=password_hash,
+                must_change_password=False,
+                role=role,
+                active=True,
+                session_version=0,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc)
+            )
+            
+            db_session.add(user)
+            db_session.commit()
+            
+            # Log audit event
+            log_audit_event(
+                action="create_user",
+                resource_type="user",
+                resource_id=user.id,
+                details=json.dumps({"username": username, "role": role, "account_type": "local"})
+            )
+            
+            return jsonify({
+                "id": user.id,
+                "username": user.username,
+                "account_type": user.account_type,
+                "role": user.role,
+                "active": user.active,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
+            }), 201
         
-        # Create the user
-        user = User(
-            id=str(uuid4()),
-            account_type="local",
-            username=username,
-            username_normalized=username_normalized,
-            password_hash=password_hash,
-            must_change_password=False,
-            role=role,
-            active=True,
-            session_version=0,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc)
-        )
+        elif account_type == "active_directory":
+            # AD user creation
+            from litfoundry.catalog import DirectoryIdentityBinding
+            
+            if not data.get("sid"):
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="sid is required for Active Directory accounts"
+                )
+            
+            sid = data.get("sid", "").strip()
+            upn = data.get("upn", "").strip().lower() if data.get("upn") else None
+            samaccountname = data.get("samaccountname", "").strip().lower() if data.get("samaccountname") else None
+            
+            # Validate SID format (basic check: starts with S-1-)
+            if not sid.startswith("S-1-"):
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="Invalid SID format"
+                )
+            
+            # Check for duplicate SID (collision)
+            existing_binding = db_session.query(DirectoryIdentityBinding).filter_by(sid=sid).first()
+            if existing_binding:
+                raise ApiError(
+                    code="DUPLICATE_SID",
+                    status=409,
+                    message="This SID is already bound to another user"
+                )
+            
+            # Derive username from UPN or sAMAccountName
+            if upn:
+                username = upn.split("@")[0]  # Use the local part of UPN
+            elif samaccountname:
+                username = samaccountname
+            else:
+                # Fallback: use SID (last component)
+                username = sid.split("-")[-1]
+            
+            username_normalized = username.lower()
+            
+            # Check if a user with this username already exists (any account type)
+            existing_user = db_session.query(User).filter_by(
+                username_normalized=username_normalized
+            ).first()
+            
+            if existing_user:
+                raise ApiError(
+                    code="DUPLICATE_USERNAME",
+                    status=409,
+                    message="Username already exists"
+                )
+            
+            # Create the AD user
+            user = User(
+                id=str(uuid4()),
+                account_type="active_directory",
+                username=username,
+                username_normalized=username_normalized,
+                password_hash=None,  # AD users don't have local passwords
+                must_change_password=False,
+                role=role,
+                active=True,
+                session_version=0,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc)
+            )
+            
+            # Create the SID binding
+            binding = DirectoryIdentityBinding(
+                id=str(uuid4()),
+                user_id=user.id,
+                sid=sid,
+                guid=data.get("guid"),
+                samaccountname_normalized=samaccountname,
+                upn_normalized=upn,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc)
+            )
+            
+            db_session.add(user)
+            db_session.add(binding)
+            db_session.commit()
+            
+            # Log audit event
+            log_audit_event(
+                action="create_user",
+                resource_type="user",
+                resource_id=user.id,
+                details=json.dumps({
+                    "account_type": "active_directory",
+                    "sid": sid,
+                    "upn": upn,
+                    "role": role
+                })
+            )
+            
+            return jsonify({
+                "id": user.id,
+                "username": user.username,
+                "account_type": user.account_type,
+                "role": user.role,
+                "active": user.active,
+                "sid": sid,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
+            }), 201
         
-        db_session.add(user)
-        db_session.commit()
-        
-        # Log audit event
-        log_audit_event(
-            action="create_user",
-            resource_type="user",
-            resource_id=user.id,
-            details=json.dumps({"username": username, "role": role})
-        )
-        
-        return jsonify({
-            "id": user.id,
-            "username": user.username,
-            "account_type": user.account_type,
-            "role": user.role,
-            "active": user.active,
-            "created_at": user.created_at.isoformat(),
-            "updated_at": user.updated_at.isoformat(),
-        }), 201
+        else:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="account_type must be 'local' or 'active_directory'"
+            )
     
     except ApiError:
         raise
@@ -365,15 +493,24 @@ def create_user():
 
 @bp.route("/users/<user_id>", methods=["PATCH"])
 def update_user(user_id):
-    """Update a user's properties.
+    """Update a user's properties or rebind AD identity.
     
     Admin-only endpoint. Direct account_type changes through PATCH are rejected
     (conversions come through dedicated actions).
     
-    Request body:
+    Request body for property update:
         {
             "active": true,
             "role": "user"
+        }
+    
+    Request body for AD rebinding (updates SID binding):
+        {
+            "rebind": {
+                "sid": "S-1-5-21-...",  # new SID
+                "upn": "user@domain.com",  # optional
+                "samaccountname": "username"  # optional
+            }
         }
     
     Returns:
@@ -392,6 +529,94 @@ def update_user(user_id):
                 status=404,
                 message="User not found"
             )
+        
+        # Handle AD rebinding
+        if "rebind" in data:
+            from litfoundry.catalog import DirectoryIdentityBinding
+            
+            if user.account_type != "active_directory":
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="rebind is only for Active Directory users"
+                )
+            
+            rebind_data = data["rebind"]
+            if not rebind_data.get("sid"):
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="rebind.sid is required"
+                )
+            
+            new_sid = rebind_data.get("sid", "").strip()
+            
+            # Validate SID format
+            if not new_sid.startswith("S-1-"):
+                raise ApiError(
+                    code="VALIDATION_ERROR",
+                    status=400,
+                    message="Invalid SID format"
+                )
+            
+            # Check for duplicate SID (collision) - only if different from current
+            existing_binding = db_session.query(DirectoryIdentityBinding).filter_by(user_id=user.id).first()
+            if existing_binding:
+                if new_sid != existing_binding.sid:
+                    # New SID - check for collisions
+                    collision = db_session.query(DirectoryIdentityBinding).filter_by(sid=new_sid).first()
+                    if collision:
+                        raise ApiError(
+                            code="DUPLICATE_SID",
+                            status=409,
+                            message="This SID is already bound to another user"
+                        )
+                    
+                    # Update the binding with new SID
+                    existing_binding.sid = new_sid
+                    existing_binding.upn_normalized = rebind_data.get("upn", "").strip().lower() if rebind_data.get("upn") else existing_binding.upn_normalized
+                    existing_binding.samaccountname_normalized = rebind_data.get("samaccountname", "").strip().lower() if rebind_data.get("samaccountname") else existing_binding.samaccountname_normalized
+                    existing_binding.updated_at = datetime.now(timezone.utc)
+                    db_session.add(existing_binding)
+                    
+                    # Revoke all sessions for this user (SID changed)
+                    user.session_version += 1
+                    user.updated_at = datetime.now(timezone.utc)
+                    db_session.add(user)
+                    db_session.commit()
+                    
+                    revoke_user_sessions(user_id)
+                    
+                    # Log audit event
+                    log_audit_event(
+                        action="rebind_user_ad",
+                        resource_type="user",
+                        resource_id=user_id,
+                        details=json.dumps({"old_sid": existing_binding.sid, "new_sid": new_sid})
+                    )
+                    
+                    return jsonify({
+                        "id": user.id,
+                        "username": user.username,
+                        "account_type": user.account_type,
+                        "role": user.role,
+                        "active": user.active,
+                        "sid": new_sid,
+                        "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+                        "created_at": user.created_at.isoformat(),
+                        "updated_at": user.updated_at.isoformat(),
+                    }), 200
+            
+            return jsonify({
+                "id": user.id,
+                "username": user.username,
+                "account_type": user.account_type,
+                "role": user.role,
+                "active": user.active,
+                "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
+            }), 200
         
         # Admin cannot be disabled or role changed through PATCH
         if user.role == "admin" and user.username == "admin":

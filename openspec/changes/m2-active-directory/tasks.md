@@ -13,16 +13,16 @@
 
 - [x] 2.1 Implement `ActiveDirectoryProvider`: identifier forms, `admin` rejection, lookup-first with escaping and an attribute allowlist, the provisioning and account-state check before any user bind, the user bind with empty-password rejection, and generic timed failures. Verify with mock tests that assert no user bind occurs for unprovisioned, disabled or locked accounts, and with an LDAP injection test (§19 group 2).
 - [x] 2.2 Apply AD throttling (default 3 per identifier per 15 min), `DIRECTORY_UNAVAILABLE` and `AUTH_PROVIDER_DISABLED`. Verify with tests showing that the fourth attempt is throttled without a directory call, that `admin` signs in while the domain is down, and that AD sign-in is refused while AD is disabled.
-- [ ] 2.3 Add the method selector to the sign-in page when `/api/v1/auth/methods` reports AD. Verify with a Playwright test.
+- [x] 2.3 Add the method selector to the sign-in page when `/api/v1/auth/methods` reports AD. Verify with a Playwright test.
 - [x] 2.4 Refuse local password operations for AD users. Verify with API tests.
 
 ## 3. Revalidation
 
-- [ ] 3.1 Implement the `ad_revalidation` periodic job (disable, lock, delete and SID change revoke sessions) and grace-period enforcement for mutations. Verify with mock tests and a container outage test.
+- [x] 3.1 Implement the `ad_revalidation` periodic job (disable, lock, delete and SID change revoke sessions) and grace-period enforcement for mutations. Verify with mock tests and a container outage test.
 
 ## 4. Provisioning
 
 - [x] 4.1 Implement `POST /api/v1/admin/ad-directory/resolve-user` with `AD_IDENTITY_AMBIGUOUS`. Verify with API tests.
-- [ ] 4.2 Extend `POST /api/v1/admin/users` for AD-bound users, and `PATCH /api/v1/admin/users/{user_id}` for rebinding (`rebind` object) and local↔AD conversion (`conversion` object, while a direct account-type change stays rejected), with collision checks, session revocation and audit events. Verify with API tests, including duplicate SID and renamed `sAMAccountName`.
-- [ ] 4.3 Build Admin → Authentication (AD settings, test, enable/disable, lockout guidance) and Admin → Users → New → Active Directory. Verify with a Playwright test against the test directory in which the admin configures AD, provisions a user and that user signs in (§19 group 12).
-- [ ] 4.4 Document AD prerequisites (controller and CA trust, service-account rights, lockout threshold) in `packaging/directory/` and `docs/security.md`. Verify that the docs cover each configuration field.
+- [x] 4.2 Extend `POST /api/v1/admin/users` for AD-bound users, and `PATCH /api/v1/admin/users/{user_id}` for rebinding (`rebind` object) and local↔AD conversion (`conversion` object, while a direct account-type change stays rejected), with collision checks, session revocation and audit events. Verify with API tests, including duplicate SID and renamed `sAMAccountName`.
+- [x] 4.3 Build Admin → Authentication (AD settings, test, enable/disable, lockout guidance) and Admin → Users → New → Active Directory. Verify with a Playwright test against the test directory in which the admin configures AD, provisions a user and that user signs in (§19 group 12).
+- [x] 4.4 Document AD prerequisites (controller and CA trust, service-account rights, lockout threshold) in `packaging/directory/` and `docs/security.md`. Verify that the docs cover each configuration field.
