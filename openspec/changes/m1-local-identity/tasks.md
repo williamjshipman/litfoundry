@@ -2,21 +2,21 @@
 
 ## 1. Catalogue identity schema
 
-- [ ] 1.1 Add the catalogue revision for `users`, `auth_settings`, `login_throttle`, `refresh_tokens`, `audit_events` and `bootstrap_tokens`, with the partial unique indexes for local usernames and the single `admin` role. Verify with migration tests and an index-violation test.
-- [ ] 1.2 Implement the `IdentityProvider` interface and `LocalProvider`, with Argon2id hashing and rehash-on-login. Verify with unit tests for hash verification and timing equalisation via the dummy hash.
+- [x] 1.1 Add the catalogue revision for `users`, `auth_settings`, `login_throttle`, `refresh_tokens`, `audit_events` and `bootstrap_tokens`, with the partial unique indexes for local usernames and the single `admin` role. Verify with migration tests and an index-violation test.
+- [x] 1.2 Implement the `IdentityProvider` interface and `LocalProvider`, with Argon2id hashing and rehash-on-login. Verify with unit tests for hash verification and timing equalisation via the dummy hash.
 
 ## 2. Bootstrap and recovery
 
-- [ ] 2.1 Implement the setup gate, `GET /api/v1/setup/status` and `POST /api/v1/setup/admin` with atomic token consumption. Verify with API tests, including concurrent setup attempts and setup after completion (§19 group 1).
-- [ ] 2.2 Issue bootstrap tokens during `litfoundry init`, at first service start and through `litfoundry bootstrap-token`, writing a restricted token file and never logging the token. Delete the file on expiry (next start, housekeeping, or use of the expired token). Verify with CLI tests, an expiry test and a log scan for the token.
-- [ ] 2.3 Implement `litfoundry admin reset-password`, which revokes `admin` sessions and writes an audit event. Verify with a CLI test.
-- [ ] 2.4 Enforce the administrator invariants: no delete, rename or disable of `admin`, and no second admin. Verify with API tests (§19 group 1).
+- [x] 2.1 Implement the setup gate, `GET /api/v1/setup/status` and `POST /api/v1/setup/admin` with atomic token consumption. Verify with API tests, including concurrent setup attempts and setup after completion (§19 group 1).
+- [x] 2.2 Issue bootstrap tokens during `litfoundry init`, at first service start and through `litfoundry bootstrap-token`, writing a restricted token file and never logging the token. Delete the file on expiry (next start, housekeeping, or use of the expired token). Verify with CLI tests, an expiry test and a log scan for the token.
+- [x] 2.3 Implement `litfoundry admin reset-password`, which revokes `admin` sessions and writes an audit event. Verify with a CLI test.
+- [x] 2.4 Enforce the administrator invariants: no delete, rename or disable of `admin`, and no second admin. Verify with API tests (§19 group 1).
 - [ ] 2.5 Build the setup page in the GUI. Verify with a Playwright test that completes bootstrap.
 
 ## 3. Local sign-in and passwords
 
-- [ ] 3.1 Implement `POST /api/v1/auth/login` for the local provider, with a default provider, generic failures and username normalisation. Verify with API tests for case-insensitivity, unknown versus wrong password parity, invalid usernames and a rejected contact-email identifier (§19 group 2).
-- [ ] 3.2 Implement the password policy, the forced-change gate and `PUT /api/v1/auth/password`, which revokes other sessions. Verify with API tests.
+- [x] 3.1 Implement `POST /api/v1/auth/login` for the local provider, with a default provider, generic failures and username normalisation. Verify with API tests for case-insensitivity, unknown versus wrong password parity, invalid usernames and a rejected contact-email identifier (§19 group 2).
+- [x] 3.2 Implement the password policy, the forced-change gate and `PUT /api/v1/auth/password`, which revokes other sessions. Verify with API tests.
 - [ ] 3.3 Implement throttling per IP and per identifier, with `admin` limited per IP only, returning 429 `AUTH_THROTTLED`. Verify with tests showing that `admin` signs in from a second IP while the first is throttled (§19 group 1).
 - [ ] 3.4 Implement `GET`/`PUT /api/v1/admin/auth-settings` for policy, lifetimes and throttling, with a revision bump when a change invalidates sessions. Verify with API tests.
 

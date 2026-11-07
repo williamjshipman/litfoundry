@@ -24,6 +24,24 @@ def create_app(config: dict | None = None) -> Flask:
     app.config.setdefault("MAX_CONTENT_LENGTH", 512 * 1024 * 1024)  # 512MB for uploads
     app.config.setdefault("JSON_PAYLOAD_MAX_SIZE", 16 * 1024 * 1024)  # 16MB for JSON
 
+    # Configure database session factory if DATA_ROOT is provided
+    from pathlib import Path
+    from litfoundry.catalog import create_catalog_engine, Base
+    from sqlalchemy.orm import sessionmaker, scoped_session
+    
+    if "DATA_ROOT" in app.config or "LITFOUNDRY_DATA_ROOT" in app.config:
+        data_root = app.config.get("DATA_ROOT") or app.config.get("LITFOUNDRY_DATA_ROOT")
+        if isinstance(data_root, str):
+            data_root = Path(data_root)
+        
+        catalog_path = Path(data_root) / "catalog.sqlite"
+        engine = create_catalog_engine(catalog_path)
+        Base.metadata.create_all(engine)  # Ensure tables exist
+        
+        Session = sessionmaker(bind=engine)
+        app.config["DB_SESSION_FACTORY"] = scoped_session(Session)
+        app.config["DATA_ROOT"] = Path(data_root)
+
     # Use custom JSON encoder for UUID and datetime serialization
     from litfoundry.api.serialization import LitFoundryJSONEncoder
     
@@ -43,10 +61,12 @@ def create_app(config: dict | None = None) -> Flask:
     setup_security_middleware(app)
 
     # Register blueprints
-    from litfoundry.api import admin, health
+    from litfoundry.api import admin, health, auth
 
     app.register_blueprint(health.bp)
     app.register_blueprint(admin.bp)
+    app.register_blueprint(auth.auth_bp)
+    app.register_blueprint(auth.setup_bp)
 
     # Setup middleware (proxy handling, host allowlist, and CORS)
     from litfoundry.middleware import setup_middleware

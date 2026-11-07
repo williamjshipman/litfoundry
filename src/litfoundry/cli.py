@@ -71,6 +71,164 @@ def serve(data_root: str | None, port: int, mode: str) -> None:
         sys.exit(1)
 
 
+@main.group()
+def admin() -> None:
+    """Administration commands (host-only access required)."""
+    pass
+
+
+@admin.command("reset-password")
+@click.option(
+    "--data-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True),
+    envvar="LITFOUNDRY_DATA_ROOT",
+    help="Data root directory. If not set, uses platform default.",
+)
+def admin_reset_password(data_root: str | None) -> None:
+    """Reset the admin account password (host-only recovery).
+    
+    This command requires operating system access to the data root and is
+    not accessible through the web API. It revokes all admin sessions and
+    records an audit event.
+    """
+    from litfoundry.catalog import create_catalog_engine, User, AuditEvent
+    from litfoundry.auth import LocalProvider
+    from pathlib import Path
+    from sqlalchemy.orm import sessionmaker
+    from datetime import datetime, timezone
+    from uuid import uuid4
+    
+    root = Path(data_root) if data_root else Config.get_default_data_root()
+    
+    try:
+        # Connect to catalog
+        catalog_path = root / "catalog.sqlite"
+        engine = create_catalog_engine(catalog_path)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        # Find admin user
+        admin = session.query(User).filter_by(role="admin").first()
+        if not admin:
+            click.echo("Error: No admin account found", err=True)
+            sys.exit(1)
+        
+        # Prompt for new password
+        while True:
+            password = click.prompt("New admin password", hide_input=True, confirmation_prompt=True)
+            if len(password) < 8:
+                click.echo("Error: Password must be at least 8 characters", err=True)
+                continue
+            break
+        
+        # Reset password
+        provider = LocalProvider()
+        provider.change_password(admin, password, session)
+        
+        # Increment session_version to revoke all sessions
+        admin.session_version += 1
+        
+        # Record audit event
+        audit = AuditEvent(
+            id=str(uuid4()),
+            actor_user_id=None,  # Host action, no user
+            action="admin_password_reset",
+            resource_type="user",
+            resource_id=admin.id,
+            status="success",
+            created_at=datetime.now(timezone.utc),
+        )
+        session.add(audit)
+        
+        session.commit()
+        session.close()
+        
+        click.echo("Admin password reset successfully", err=False)
+        
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@main.command("bootstrap-token")
+@click.option(
+    "--data-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True),
+    envvar="LITFOUNDRY_DATA_ROOT",
+    help="Data root directory. If not set, uses platform default.",
+)
+def bootstrap_token(data_root: str | None) -> None:
+    """Issue a new bootstrap token for setup (while setup is pending).
+    
+    Generates a new single-use token valid for 30 minutes.
+    Only works when no admin account exists yet.
+    """
+    from litfoundry.catalog import create_catalog_engine, User, BootstrapToken
+    from litfoundry.auth.bootstrap import (
+        generate_bootstrap_token,
+        hash_bootstrap_token,
+        write_bootstrap_token_file,
+        get_bootstrap_token_expiry_time,
+    )
+    from pathlib import Path
+    from sqlalchemy.orm import sessionmaker
+    from datetime import datetime, timezone
+    from uuid import uuid4
+    
+    root = Path(data_root) if data_root else Config.get_default_data_root()
+    
+    try:
+        # Connect to catalog
+        catalog_path = root / "catalog.sqlite"
+        engine = create_catalog_engine(catalog_path)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        # Check if admin exists (setup complete)
+        admin = session.query(User).filter_by(role="admin").first()
+        if admin:
+            click.echo("Error: Setup is already complete", err=True)
+            sys.exit(1)
+        
+        # Generate new token
+        token = generate_bootstrap_token()
+        token_hash = hash_bootstrap_token(token)
+        now = datetime.now(timezone.utc)
+        expires_at = get_bootstrap_token_expiry_time(now)
+        
+        # Delete any old unconsumed tokens
+        session.query(BootstrapToken).filter_by(consumed_at=None).delete()
+        
+        # Store new token hash in database
+        boot_token = BootstrapToken(
+            token_hash=token_hash,
+            expires_at=expires_at,
+            consumed_at=None,
+        )
+        session.add(boot_token)
+        session.commit()
+        
+        # Write token file
+        try:
+            write_bootstrap_token_file(root, token)
+            click.echo(f"Bootstrap token written to {root / 'bootstrap-token.txt'}", err=False)
+        except Exception as e:
+            click.echo(f"Warning: Could not write token file: {e}", err=True)
+        
+        # Display token (only on first generation; warn about file write)
+        click.echo("", err=False)
+        click.echo("Bootstrap Token (valid for 30 minutes):", err=False)
+        click.echo(token, err=False)
+        click.echo("", err=False)
+        click.echo("Use this token with: POST /api/v1/setup/admin", err=False)
+        
+        session.close()
+        
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
 @main.command()
 @click.option(
     "--data-root",

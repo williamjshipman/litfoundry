@@ -58,6 +58,51 @@ def initialize_data_root(root: Path, recreate: bool = False) -> None:
             run_alembic_upgrade(catalog_path, target_revision="head")
         except Exception as e:
             raise OSError(f"Failed to initialize catalogue: {e}") from e
+    
+    # Generate initial bootstrap token and write to file
+    try:
+        from litfoundry.auth.bootstrap import (
+            generate_bootstrap_token,
+            hash_bootstrap_token,
+            write_bootstrap_token_file,
+            get_bootstrap_token_expiry_time,
+        )
+        from litfoundry.catalog import BootstrapToken
+        from sqlalchemy.orm import sessionmaker
+        from datetime import datetime, timezone
+        
+        # Generate token
+        token = generate_bootstrap_token()
+        token_hash = hash_bootstrap_token(token)
+        now = datetime.now(timezone.utc)
+        expires_at = get_bootstrap_token_expiry_time(now)
+        
+        # Store in database
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        boot_token = BootstrapToken(
+            token_hash=token_hash,
+            expires_at=expires_at,
+            consumed_at=None,
+        )
+        session.add(boot_token)
+        session.commit()
+        session.close()
+        
+        # Write to file
+        write_bootstrap_token_file(root, token)
+        
+        # Print token to console during init
+        print(f"\n{'='*60}")
+        print(f"Bootstrap Token (valid for 30 minutes):")
+        print(f"{token}")
+        print(f"{'='*60}\n")
+        print(f"Token saved to: {root / 'bootstrap-token.txt'}")
+        print("Use this token to complete setup at: /setup")
+        
+    except Exception as e:
+        # Don't fail initialization if token generation fails
+        print(f"Warning: Could not generate bootstrap token: {e}", file=sys.stderr)
 
     # Mark initialization complete (touch a marker file)
     (root / ".initialized").touch()
