@@ -134,8 +134,9 @@ class TestProjectManifest:
             "product": "litfoundry",
             "uuid": project_id,
             "schema_version": 1,
-            "data_path": "/absolute/path/to/data"  # Not allowed
+            "extra_data_path": "/absolute/path/to/data"  # Extra field with absolute path
         }
         
+        # The validation should detect the absolute path
         with pytest.raises(ValueError, match="absolute paths"):
             ProjectManifest.validate_manifest(manifest)

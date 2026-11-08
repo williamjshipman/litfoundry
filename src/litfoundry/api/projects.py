@@ -620,3 +620,268 @@ def lookup_users():
         })
     finally:
         db_session.remove()
+
+
+# Admin endpoints for project quarantine/release
+admin_bp = Blueprint("admin_projects", __name__, url_prefix="/api/v1/admin/projects")
+
+
+@admin_bp.route("/<project_id>/quarantine", methods=["POST"])
+def quarantine_project(project_id: str):
+    """Admin: Quarantine a project (admin only)."""
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+    except Exception:
+        raise ApiError(
+            code="UNAUTHORIZED",
+            status=401,
+            message="Authentication required"
+        )
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        # Check admin status
+        user = db_session.query(User).filter(User.id == user_id).one_or_none()
+        if not user or not user.is_admin:
+            raise ApiError(
+                code="FORBIDDEN",
+                status=403,
+                message="Admin access required"
+            )
+        
+        # Check project exists
+        project = db_session.query(ProjectDirectory).filter(
+            ProjectDirectory.id == project_id
+        ).one_or_none()
+        
+        if not project:
+            raise ApiError(
+                code="NOT_FOUND",
+                status=404,
+                message="Project not found"
+            )
+        
+        # Quarantine
+        project.state = "quarantined"
+        project.updated_at = datetime.now(timezone.utc)
+        
+        # Record audit event
+        audit = AuditEvent(
+            actor_user_id=user_id,
+            action="quarantine",
+            resource_type="project",
+            resource_id=project_id,
+        )
+        db_session.add(audit)
+        db_session.commit()
+        
+        return jsonify({"status": "quarantined"})
+    finally:
+        db_session.remove()
+
+
+@admin_bp.route("/<project_id>/release", methods=["POST"])
+def release_project(project_id: str):
+    """Admin: Release a quarantined project (admin only)."""
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+    except Exception:
+        raise ApiError(
+            code="UNAUTHORIZED",
+            status=401,
+            message="Authentication required"
+        )
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        # Check admin status
+        user = db_session.query(User).filter(User.id == user_id).one_or_none()
+        if not user or not user.is_admin:
+            raise ApiError(
+                code="FORBIDDEN",
+                status=403,
+                message="Admin access required"
+            )
+        
+        # Check project exists
+        project = db_session.query(ProjectDirectory).filter(
+            ProjectDirectory.id == project_id
+        ).one_or_none()
+        
+        if not project:
+            raise ApiError(
+                code="NOT_FOUND",
+                status=404,
+                message="Project not found"
+            )
+        
+        # Release
+        project.state = "ready"
+        project.updated_at = datetime.now(timezone.utc)
+        
+        # Record audit event
+        audit = AuditEvent(
+            actor_user_id=user_id,
+            action="release",
+            resource_type="project",
+            resource_id=project_id,
+        )
+        db_session.add(audit)
+        db_session.commit()
+        
+        return jsonify({"status": "ready"})
+    finally:
+        db_session.remove()
+
+
+@admin_bp.route("/<project_id>/transfer-to", methods=["POST"])
+def admin_transfer_project(project_id: str):
+    """Admin: Transfer project to another owner (admin only)."""
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+    except Exception:
+        raise ApiError(
+            code="UNAUTHORIZED",
+            status=401,
+            message="Authentication required"
+        )
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        # Check admin status
+        user = db_session.query(User).filter(User.id == user_id).one_or_none()
+        if not user or not user.is_admin:
+            raise ApiError(
+                code="FORBIDDEN",
+                status=403,
+                message="Admin access required"
+            )
+        
+        data = request.get_json() or {}
+        new_owner_id = data.get("owner_id", "").strip()
+        
+        if not new_owner_id:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="owner_id is required"
+            )
+        
+        # Check project exists
+        project = db_session.query(ProjectDirectory).filter(
+            ProjectDirectory.id == project_id
+        ).one_or_none()
+        
+        if not project:
+            raise ApiError(
+                code="NOT_FOUND",
+                status=404,
+                message="Project not found"
+            )
+        
+        # Check new owner exists
+        new_owner = db_session.query(User).filter(User.id == new_owner_id).one_or_none()
+        if not new_owner:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="New owner does not exist"
+            )
+        
+        # Transfer
+        project.owner_id = new_owner_id
+        project.updated_at = datetime.now(timezone.utc)
+        
+        # Record audit event
+        audit = AuditEvent(
+            actor_user_id=user_id,
+            action="transfer_ownership",
+            resource_type="project",
+            resource_id=project_id,
+            details=f"to {new_owner_id}",
+        )
+        db_session.add(audit)
+        db_session.commit()
+        
+        return jsonify({"status": "transferred"})
+    finally:
+        db_session.remove()
+
+
+# Endpoint to transfer all projects from one user to another
+@admin_bp.route("/transfer-all", methods=["POST"])
+def transfer_all_user_projects():
+    """Admin: Transfer all projects from one user to another (admin only)."""
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+    except Exception:
+        raise ApiError(
+            code="UNAUTHORIZED",
+            status=401,
+            message="Authentication required"
+        )
+    
+    db_session = scoped_session(current_app.config["DB_SESSION_FACTORY"])
+    try:
+        # Check admin status
+        user = db_session.query(User).filter(User.id == user_id).one_or_none()
+        if not user or not user.is_admin:
+            raise ApiError(
+                code="FORBIDDEN",
+                status=403,
+                message="Admin access required"
+            )
+        
+        data = request.get_json() or {}
+        from_user_id = data.get("from_user_id", "").strip()
+        to_user_id = data.get("to_user_id", "").strip()
+        
+        if not from_user_id or not to_user_id:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="from_user_id and to_user_id are required"
+            )
+        
+        # Check both users exist
+        from_user = db_session.query(User).filter(User.id == from_user_id).one_or_none()
+        to_user = db_session.query(User).filter(User.id == to_user_id).one_or_none()
+        
+        if not from_user or not to_user:
+            raise ApiError(
+                code="VALIDATION_ERROR",
+                status=400,
+                message="One or both users do not exist"
+            )
+        
+        # Get all projects owned by from_user
+        projects = db_session.query(ProjectDirectory).filter(
+            ProjectDirectory.owner_id == from_user_id
+        ).all()
+        
+        # Transfer each project
+        now = datetime.now(timezone.utc)
+        for project in projects:
+            project.owner_id = to_user_id
+            project.updated_at = now
+            
+            # Record audit event
+            audit = AuditEvent(
+                actor_user_id=user_id,
+                action="transfer_ownership",
+                resource_type="project",
+                resource_id=project.id,
+                details=f"bulk transfer from {from_user_id} to {to_user_id}",
+            )
+            db_session.add(audit)
+        
+        db_session.commit()
+        
+        return jsonify({
+            "status": "transferred",
+            "projects_count": len(projects)
+        })

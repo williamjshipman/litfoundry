@@ -29,6 +29,9 @@ class WriteOnceFileHelper:
         """
         target_path = Path(target_path)
         
+        # Ensure target parent directory exists first
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        
         # Determine temp directory (prefer project temp/ if available)
         if project_path:
             temp_dir = Path(project_path) / "temp"
@@ -50,9 +53,6 @@ class WriteOnceFileHelper:
                 f.flush()
                 # Force data to disk
                 os.fsync(f.fileno())
-            
-            # Ensure parent directory exists
-            target_path.parent.mkdir(parents=True, exist_ok=True)
             
             # Atomically rename to final destination
             # os.replace() is atomic on Windows and Unix

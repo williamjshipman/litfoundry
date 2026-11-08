@@ -9,8 +9,6 @@ from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from litfoundry.api.errors import APIError
-
 
 class ProjectDatabaseRouter:
     """Routes requests to project-specific databases with safety checks."""

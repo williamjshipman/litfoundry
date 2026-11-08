@@ -121,6 +121,15 @@ class ProjectManifest:
                 f"Project ID mismatch: manifest has {manifest['uuid']}, expected {expected_project_id}"
             )
         
+        # Check for unknown fields
+        allowed_fields = {"product", "uuid", "schema_version"}
+        extra_fields = set(manifest.keys()) - allowed_fields
+        if extra_fields:
+            # Check if extra fields contain paths
+            extra_json = json.dumps({k: v for k, v in manifest.items() if k in extra_fields})
+            if "/" in extra_json or "\\" in extra_json:
+                raise ValueError("Manifest should not contain absolute paths or URLs")
+        
         # Check for secrets or absolute paths
         manifest_json = json.dumps(manifest)
         if "://" in manifest_json and "sqlite://" not in manifest_json:

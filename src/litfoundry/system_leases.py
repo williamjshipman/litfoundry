@@ -7,8 +7,6 @@ from uuid import uuid4
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from litfoundry.api.errors import APIError
-
 
 class LeaseAlreadyHeldError(Exception):
     """Raised when attempting to acquire a lease that is already held."""
