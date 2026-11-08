@@ -117,7 +117,6 @@ class ProjectDatabaseRouter:
             
         Raises:
             ValueError: If project invalid or path invalid
-            APIError: If project unavailable
         """
         # Resolve path
         project_path = self.resolve_project_path(project_id)
@@ -125,10 +124,8 @@ class ProjectDatabaseRouter:
         # Check that project database exists
         project_db = project_path / "project.sqlite"
         if not project_db.exists():
-            raise APIError(
-                code="PROJECT_NOT_FOUND",
-                message=f"Project {project_id} database not found",
-                status_code=404
+            raise ValueError(
+                f"Project {project_id} database not found"
             )
         
         # Get or create engine

@@ -5,7 +5,6 @@ from pathlib import Path
 from uuid import uuid4
 
 from litfoundry.project_database_router import ProjectDatabaseRouter
-from litfoundry.api.errors import APIError
 from litfoundry.project_migrations import create_project_database
 
 
@@ -73,7 +72,7 @@ class TestProjectDatabaseRouter:
         project_id = str(uuid4())
         router = ProjectDatabaseRouter(tmp_path)
         
-        with pytest.raises(APIError, match="not found"):
+        with pytest.raises(ValueError, match="not found"):
             router.open(project_id)
     
     def test_engine_caching(self, tmp_path):
