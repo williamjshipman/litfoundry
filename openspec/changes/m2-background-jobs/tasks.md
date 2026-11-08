@@ -2,9 +2,9 @@
 
 ## 1. Queue and worker
 
-- [ ] 1.1 Add the catalogue revision for `jobs`, `active_writers` and `job_locked_works`. Verify with migration tests.
-- [ ] 1.2 Implement atomic claiming, the lease heartbeat, reclaim on start and lease expiry, and bounded retries with retryable classification. Verify with tests that kill a worker mid-job and assert there is no phantom success (§19 group 10).
-- [ ] 1.3 Implement `JobContext` (checkpoint, progress, `authorize`, `write_unit`, temp directory) and a test job type. Verify with unit tests.
+- [x] 1.1 Add the catalogue revision for `jobs`, `active_writers` and `job_locked_works`. Verify with migration tests.
+- [x] 1.2 Implement atomic claiming, the lease heartbeat, reclaim on start and lease expiry, and bounded retries with retryable classification. Verify with tests that kill a worker mid-job and assert there is no phantom success (§19 group 10).
+- [x] 1.3 Implement `JobContext` (checkpoint, progress, `authorize`, `write_unit`, temp directory) and a test job type. Verify with unit tests.
 - [ ] 1.4 Implement `litfoundry worker` and `litfoundry supervise` (restart on crash, clean shutdown). Verify with process tests on all three CI operating systems.
 - [ ] 1.5 Implement idempotency keys. Verify with a double-submit test.
 - [ ] 1.6 Implement per-user and global concurrency limits. Verify with a queue test.
