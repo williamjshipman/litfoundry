@@ -267,8 +267,8 @@ class TestJobExecution:
         # Check the job is marked failed
         job = queue.get_job(job_id)
         assert job.status == JobStatus.FAILED
-        assert job.error_code == "TEST_ERROR"
-        assert job.error_cause == "SIMULATED_ERROR"
+        assert job.error_code == "JOB_FAILED"  # Spec: failed jobs report JOB_FAILED
+        assert job.error_cause == "SIMULATED_ERROR"  # Typed cause is preserved
 
     def test_execute_cancelled_job(self, queue, setup_users):
         """Test that a job cancelled at checkpoint stops cleanly."""
