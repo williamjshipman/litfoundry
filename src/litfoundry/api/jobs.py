@@ -9,6 +9,7 @@ from uuid import uuid4
 from litfoundry.jobs.queue import JobQueue
 from litfoundry.jobs.types import JobStatus
 from werkzeug.exceptions import Forbidden, NotFound
+from sqlalchemy import text
 
 jobs_bp = Blueprint("jobs", __name__, url_prefix="/api/v1/jobs")
 
@@ -24,6 +25,15 @@ def get_job_queue() -> JobQueue:
     return current_app.config["job_queue"]
 
 
+def get_catalog_engine():
+    """Get the catalog database engine."""
+    if "catalog_engine" not in current_app.config:
+        from litfoundry.catalog import create_catalog_engine
+        catalog_path = current_app.config["DATA_ROOT"] / "catalog.sqlite"
+        current_app.config["catalog_engine"] = create_catalog_engine(catalog_path)
+    return current_app.config["catalog_engine"]
+
+
 def accepted_response(job_id: str, status: str, status_url: str):
     """Return a 202 Accepted response for async operations."""
     return jsonify({
@@ -37,13 +47,59 @@ def accepted_response(job_id: str, status: str, status_url: str):
 
 def get_user_role(user_id: str) -> str:
     """Get the user's role from the database."""
-    from litfoundry.catalog import User
-    session = current_app.config.get("DB_SESSION_FACTORY")
-    if not session:
-        return "viewer"  # Default if session not available
+    engine = get_catalog_engine()
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT role FROM users WHERE id = :id"),
+            {"id": user_id},
+        )
+        row = result.fetchone()
+        return row[0] if row else "viewer"
+
+
+def user_has_project_access(user_id: str, project_id: str, required_role: str = "viewer") -> bool:
+    """Check if user has required access to project.
     
-    user = session.query(User).filter_by(id=user_id).first()
-    return user.role if user else "viewer"
+    Args:
+        user_id: User ID
+        project_id: Project ID
+        required_role: Minimum required role (viewer or editor)
+        
+    Returns:
+        True if user has access, False otherwise
+    """
+    engine = get_catalog_engine()
+    
+    with engine.connect() as conn:
+        # Admin users always have access
+        result = conn.execute(
+            text("SELECT role FROM users WHERE id = :id"),
+            {"id": user_id},
+        )
+        row = result.fetchone()
+        if row and row[0] == "admin":
+            return True
+        
+        # Check project ACL
+        result = conn.execute(
+            text(
+                "SELECT role FROM project_acl WHERE project_id = :project_id AND user_id = :user_id"
+            ),
+            {"project_id": project_id, "user_id": user_id},
+        )
+        row = result.fetchone()
+        if not row:
+            return False
+        
+        user_role = row[0]
+        if required_role == "viewer":
+            return user_role in ("viewer", "editor")
+        elif required_role == "editor":
+            return user_role == "editor"
+        
+        return False
+
+
 
 
 @jobs_bp.route("", methods=["GET"])
@@ -92,6 +148,8 @@ def list_jobs():
 def get_job(job_id: str):
     """Get a single job's status and progress.
     
+    Access: Own job, users with read access to project, or admin.
+    
     Args:
         job_id: Job ID
         
@@ -108,24 +166,15 @@ def get_job(job_id: str):
         raise NotFound({"error_code": "JOB_NOT_FOUND", "message": "Job not found"})
     
     # Check access: requester, project access, or admin
-    if user_id != job.user_id and user_role != "admin":
-        # Check if user has access to the project (if not system job)
-        if job.project_id:
-            # Check project ACL
-            from litfoundry.catalog import User, project_acl
-            session = current_app.config.get("DB_SESSION_FACTORY")
-            if session:
-                acl = session.query(project_acl).filter_by(
-                    project_id=job.project_id,
-                    user_id=user_id
-                ).first()
-                if not acl:
-                    raise NotFound({"error_code": "JOB_NOT_FOUND", "message": "Job not found"})
-            else:
-                raise NotFound({"error_code": "JOB_NOT_FOUND", "message": "Job not found"})
-        else:
-            # System job without project access
-            raise NotFound({"error_code": "JOB_NOT_FOUND", "message": "Job not found"})
+    is_owner = user_id == job.user_id
+    is_admin = user_role == "admin"
+    has_project_access = False
+    
+    if job.project_id:
+        has_project_access = user_has_project_access(user_id, job.project_id, "viewer")
+    
+    if not (is_owner or is_admin or has_project_access):
+        raise NotFound({"error_code": "JOB_NOT_FOUND", "message": "Job not found"})
     
     return jsonify({
         "id": job.id,
@@ -146,36 +195,27 @@ def get_job(job_id: str):
     }), 200
 
 
-@jobs_bp.route("/<job_id>/cancel", methods=["POST"])
+
+
+@jobs_bp.route("/queue/health", methods=["GET"])
 @jwt_required()
-def cancel_job(job_id: str):
-    """Cancel a job (idempotent).
+def get_queue_health():
+    """Get job queue health statistics (admin only).
     
-    Args:
-        job_id: Job ID
-        
     Returns:
-        202 Accepted with updated job status
-        404 Not Found if job not accessible
+        200 OK with queue health data
+        403 Forbidden if not admin
     """
     user_id = get_jwt_identity()
     user_role = get_user_role(user_id)
+    
+    if user_role != "admin":
+        raise Forbidden({"error_code": "FORBIDDEN", "message": "Admin access required"})
+    
     queue = get_job_queue()
+    health = queue.get_queue_health()
     
-    job = queue.get_job(job_id)
-    if not job:
-        raise NotFound({"error_code": "JOB_NOT_FOUND", "message": "Job not found"})
-    
-    # Check access: requester or admin
-    if user_id != job.user_id and user_role != "admin":
-        raise Forbidden({"error_code": "FORBIDDEN", "message": "Cannot cancel this job"})
-    
-    # Cancel the job
-    queue.cancel_job(job_id)
-    
-    # Get updated job
-    job = queue.get_job(job_id)
-    
-    status_url = f"/api/v1/jobs/{job_id}"
-    return accepted_response(job_id, job.status.value, status_url)
+    return jsonify(health), 200
+
+
 

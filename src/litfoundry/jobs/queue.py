@@ -77,6 +77,10 @@ class JobContext:
         - Checks if the job was cancelled
         - Blocks if the barrier is raised
         - Renews the lease if needed
+        
+        Raises:
+            JobCancelled: If the job was cancelled
+            BarrierFrozen: If the barrier is raised and write times out
         """
         now = time.time()
         
@@ -104,6 +108,8 @@ class JobContext:
 
     def authorize(self, required_role: str = "editor") -> bool:
         """Check if the requester is still authorized.
+        
+        Must be called before job starts and before persisting results.
         
         Args:
             required_role: Required role (editor, viewer, etc.)
@@ -484,6 +490,20 @@ class JobQueue:
         progress_json = json.dumps(progress.to_dict()) if progress else None
         
         with self.catalog_engine.begin() as conn:
+            # Validate state transition
+            result = conn.execute(
+                text("SELECT status FROM jobs WHERE id = :id"),
+                {"id": job_id},
+            )
+            row = result.fetchone()
+            if not row:
+                return
+            
+            current_status = JobStatus(row[0])
+            if current_status != JobStatus.RUNNING:
+                logger.warning(f"Cannot transition {current_status.value} -> completed")
+                return
+            
             conn.execute(
                 text(
                     """
@@ -518,9 +538,9 @@ class JobQueue:
         
         Args:
             job_id: Job ID
-            error_code: Error code
+            error_code: Error code (will be JOB_FAILED for non-retryable)
             error_message: Error message (will be redacted)
-            error_cause: Typed error cause
+            error_cause: Typed error cause (e.g., FORBIDDEN, SOURCE_ACCESS_DENIED)
             is_retryable: Whether the error is retryable
         """
         now = datetime.now(timezone.utc)
@@ -530,7 +550,7 @@ class JobQueue:
             result = conn.execute(
                 text(
                     """
-                    SELECT attempt, max_attempts FROM jobs WHERE id = :id
+                    SELECT attempt, max_attempts, status FROM jobs WHERE id = :id
                     """
                 ),
                 {"id": job_id},
@@ -539,7 +559,13 @@ class JobQueue:
             if not row:
                 return
             
-            attempt, max_attempts = row
+            attempt, max_attempts, current_status = row
+            current_status = JobStatus(current_status)
+            
+            # Validate state transitions
+            if current_status not in (JobStatus.RUNNING, JobStatus.QUEUED):
+                logger.warning(f"Cannot transition {current_status.value} -> failed")
+                return
             
             # Decide next status
             if is_retryable and attempt < max_attempts:
@@ -548,6 +574,9 @@ class JobQueue:
             else:
                 status = JobStatus.FAILED.value
                 next_attempt = attempt
+            
+            # Use JOB_FAILED for non-retryable failures
+            final_error_code = "JOB_FAILED" if status == JobStatus.FAILED.value else error_code
             
             conn.execute(
                 text(
@@ -568,7 +597,7 @@ class JobQueue:
                 {
                     "status": status,
                     "attempt": next_attempt,
-                    "error_code": error_code,
+                    "error_code": final_error_code,
                     "error_message": error_message,
                     "error_cause": error_cause,
                     "completed_at": now,
@@ -688,6 +717,20 @@ class JobQueue:
         progress_json = json.dumps(progress.to_dict()) if progress else None
         
         with self.catalog_engine.begin() as conn:
+            # Validate state transition
+            result = conn.execute(
+                text("SELECT status FROM jobs WHERE id = :id"),
+                {"id": job_id},
+            )
+            row = result.fetchone()
+            if not row:
+                return
+            
+            current_status = JobStatus(row[0])
+            if current_status != JobStatus.RUNNING:
+                logger.warning(f"Cannot transition {current_status.value} -> partial")
+                return
+            
             conn.execute(
                 text(
                     """
@@ -719,6 +762,20 @@ class JobQueue:
         now = datetime.now(timezone.utc)
         
         with self.catalog_engine.begin() as conn:
+            # Validate state transition
+            result = conn.execute(
+                text("SELECT status FROM jobs WHERE id = :id"),
+                {"id": job_id},
+            )
+            row = result.fetchone()
+            if not row:
+                return
+            
+            current_status = JobStatus(row[0])
+            if current_status not in (JobStatus.CANCELLING, JobStatus.RUNNING):
+                logger.warning(f"Cannot transition {current_status.value} -> cancelled")
+                return
+            
             conn.execute(
                 text(
                     """
@@ -789,7 +846,153 @@ class JobQueue:
                 jobs.append(self._row_to_job(row))
             return jobs
 
-    def cancel_job(self, job_id: str) -> None:
+    def get_queue_health(self) -> Dict[str, Any]:
+        """Get job queue health statistics.
+        
+        Returns:
+            Dict with keys:
+            - queued_count: Number of queued jobs
+            - running_count: Number of running jobs
+            - failed_count: Number of failed jobs (in last 24h)
+            - worker_heartbeats: List of {worker_id, last_heartbeat, status}
+        """
+        now = datetime.now(timezone.utc)
+        day_ago = now - timedelta(days=1)
+        
+        with self.catalog_engine.connect() as conn:
+            # Queued jobs
+            result = conn.execute(
+                text("""
+                    SELECT COUNT(*) FROM jobs WHERE status = 'queued'
+                """)
+            )
+            queued_count = result.scalar()
+            
+            # Running jobs
+            result = conn.execute(
+                text("""
+                    SELECT COUNT(*) FROM jobs WHERE status = 'running'
+                """)
+            )
+            running_count = result.scalar()
+            
+            # Failed jobs (last 24h)
+            result = conn.execute(
+                text("""
+                    SELECT COUNT(*) FROM jobs
+                    WHERE status = 'failed' AND completed_at > :day_ago
+                """),
+                {"day_ago": day_ago},
+            )
+            failed_count = result.scalar()
+            
+            # Active workers (have running jobs with active leases)
+            result = conn.execute(
+                text("""
+                    SELECT DISTINCT lease_owner FROM jobs
+                    WHERE status = 'running' AND lease_expires_at > :now
+                """),
+                {"now": now},
+            )
+            worker_ids = [row[0] for row in result.fetchall()]
+            
+            worker_heartbeats = []
+            for worker_id in worker_ids:
+                # Find most recent job update for this worker
+                result = conn.execute(
+                    text("""
+                        SELECT MAX(updated_at) FROM jobs
+                        WHERE lease_owner = :worker_id
+                    """),
+                    {"worker_id": worker_id},
+                )
+                last_heartbeat = result.scalar()
+                
+                # Check if worker is still alive
+                is_alive = False
+                if last_heartbeat:
+                    is_alive = (now - last_heartbeat).total_seconds() < LEASE_DURATION_SECONDS
+                
+                worker_heartbeats.append({
+                    "worker_id": worker_id,
+                    "last_heartbeat": last_heartbeat.isoformat() if last_heartbeat else None,
+                    "status": "active" if is_alive else "stale",
+                })
+        
+        return {
+            "queued_count": queued_count,
+            "running_count": running_count,
+            "failed_count": failed_count,
+            "worker_heartbeats": worker_heartbeats,
+        }
+        """Cancel all active jobs for a project.
+        
+        Called when a project is deleted. Cancels all queued/running jobs.
+        
+        Args:
+            project_id: Project ID
+            
+        Returns:
+            Number of jobs cancelled
+        """
+        now = datetime.now(timezone.utc)
+        
+        with self.catalog_engine.begin() as conn:
+            # Get all non-terminal jobs for project
+            result = conn.execute(
+                text("""
+                    SELECT id, status FROM jobs
+                    WHERE project_id = :project_id
+                        AND status IN ('queued', 'running', 'cancelling')
+                """),
+                {"project_id": project_id},
+            )
+            
+            job_ids = []
+            for row in result.fetchall():
+                job_id, status = row
+                job_ids.append((job_id, JobStatus(status)))
+            
+            if not job_ids:
+                return 0
+            
+            # Cancel each job appropriately
+            for job_id, current_status in job_ids:
+                if current_status == JobStatus.QUEUED:
+                    new_status = JobStatus.CANCELLED
+                    conn.execute(
+                        text("""
+                            UPDATE jobs SET
+                                status = :status,
+                                completed_at = :completed_at,
+                                lease_owner = NULL,
+                                lease_expires_at = NULL,
+                                updated_at = :updated_at
+                            WHERE id = :id
+                        """),
+                        {
+                            "status": new_status.value,
+                            "completed_at": now,
+                            "id": job_id,
+                            "updated_at": now,
+                        },
+                    )
+                elif current_status == JobStatus.RUNNING:
+                    conn.execute(
+                        text("""
+                            UPDATE jobs SET
+                                status = :status,
+                                updated_at = :updated_at
+                            WHERE id = :id
+                        """),
+                        {
+                            "status": JobStatus.CANCELLING.value,
+                            "id": job_id,
+                            "updated_at": now,
+                        },
+                    )
+            
+            return len(job_ids)
         """Cancel a job (idempotent).
         
         Moves queued -> cancelled or running -> cancelling.
@@ -1059,23 +1262,40 @@ class JobQueue:
 
     def _wait_for_barrier(self) -> None:
         """Wait for the barrier to be released if it's raised."""
-        # This is a stub - full barrier implementation is in task 3.3
-        pass
+        from litfoundry.jobs.write import WriteCoordinator
+        coordinator = WriteCoordinator(self.catalog_engine)
+        coordinator._wait_for_barrier()
 
     def _check_barrier_for_write(self) -> None:
         """Check barrier for a write operation."""
-        # This is a stub - full barrier implementation is in task 3.3
-        pass
+        from litfoundry.jobs.write import WriteCoordinator, BarrierFrozen
+        coordinator = WriteCoordinator(self.catalog_engine)
+        try:
+            coordinator._check_barrier_for_write(timeout_seconds=2)
+        except BarrierFrozen:
+            raise
 
     def _check_record_locks(self, project_id: str, work_ids: List[str]) -> None:
         """Check if any work IDs are locked by running jobs."""
-        # This is a stub - full implementation is in task 3.2
-        pass
+        from litfoundry.jobs.write import WriteCoordinator
+        coordinator = WriteCoordinator(self.catalog_engine)
+        try:
+            coordinator._check_record_locks(project_id, work_ids)
+        except RuntimeError as e:
+            if str(e) == "RECORD_LOCKED":
+                raise
+            raise
 
     def _check_project_busy(self, project_id: str) -> None:
         """Check if the project is busy with another write."""
-        # This is a stub - full implementation is in task 3.2
-        pass
+        from litfoundry.jobs.write import WriteCoordinator
+        coordinator = WriteCoordinator(self.catalog_engine)
+        try:
+            coordinator._check_project_busy(project_id)
+        except RuntimeError as e:
+            if str(e) == "PROJECT_BUSY":
+                raise
+            raise
 
     def _check_concurrency_limits(self, user_id: str) -> bool:
         """Check if a user has exceeded concurrency limits.

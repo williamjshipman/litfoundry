@@ -125,12 +125,26 @@ def ready():
                 "reason": f"Catalogue database error: {str(e)}"
             }), 503
         
+        # Check job queue health
+        job_queue = current_app.config.get("job_queue")
+        if job_queue:
+            health = job_queue.get_queue_health()
+            # Check if we have workers with active heartbeats
+            active_workers = [w for w in health.get("worker_heartbeats", []) if w["status"] == "active"]
+            if not active_workers and health.get("running_count", 0) > 0:
+                # Jobs are running but no active workers detected
+                return jsonify({
+                    "status": "not_ready",
+                    "reason": "Job workers not responding"
+                }), 503
+        
         # All checks passed
         return jsonify({
             "status": "ready",
             "checks": {
                 "data_root": "ok",
-                "catalogue": "ok"
+                "catalogue": "ok",
+                "job_queue": "ok" if not job_queue or len([w for w in job_queue.get_queue_health().get("worker_heartbeats", []) if w["status"] == "active"]) > 0 else "stale"
             }
         }), 200
     except Exception as e:

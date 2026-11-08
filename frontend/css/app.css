@@ -194,3 +194,172 @@ body {
   text-align: center;
   padding: 3rem 1rem;
 }
+
+/* Job Progress Component Styles */
+.job-progress {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f9fafb;
+  margin: 1rem 0;
+}
+
+.job-progress__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.job-progress__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.job-progress__label {
+  color: #6b7280;
+  margin-right: 0.5rem;
+}
+
+.job-progress__id {
+  font-family: monospace;
+  background: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.job-progress__status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.job-progress__status--gray {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.job-progress__status--blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.job-progress__status--yellow {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.job-progress__status--green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.job-progress__status--red {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.job-progress__progress {
+  margin: 1rem 0;
+}
+
+.job-progress__bar-container {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  height: 1.5rem;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.job-progress__bar {
+  background: linear-gradient(to right, #3b82f6, #1d4ed8);
+  height: 100%;
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.job-progress__percent {
+  font-size: 0.875rem;
+  color: #4b5563;
+  text-align: right;
+}
+
+.job-progress__message {
+  font-size: 0.875rem;
+  color: #374151;
+  padding: 0.5rem 0;
+  font-style: italic;
+}
+
+.job-progress__stats {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.job-progress__error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 1rem 0;
+}
+
+.job-progress__error-code {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.25rem;
+}
+
+.job-progress__error-message {
+  font-size: 0.875rem;
+  color: #7f1d1d;
+  font-family: monospace;
+}
+
+.job-progress__timestamps {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+}
+
+.job-progress__timestamp {
+  display: flex;
+  flex-direction: column;
+}
+
+.job-progress__timestamp-label {
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.125rem;
+}
+
+.job-progress__timestamp-value {
+  font-family: monospace;
+}
+
+.job-progress__loading {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin-top: 0.5rem;
+}

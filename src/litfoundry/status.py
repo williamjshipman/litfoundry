@@ -264,7 +264,40 @@ def check_status(data_root: Path) -> dict[str, Any]:
             "reason": str(e)
         }
     
-    # Check 6: Migration status
+    # Check 6: Job queue health (if catalyst connected)
+    try:
+        from litfoundry.catalog import create_catalog_engine
+        from litfoundry.jobs.queue import JobQueue
+        
+        catalogue_db = data_root / "catalog.sqlite"
+        if catalogue_db.is_file():
+            engine = create_catalog_engine(catalogue_db)
+            queue = JobQueue(engine)
+            health = queue.get_queue_health()
+            
+            # Check if we have workers
+            active_workers = [w for w in health.get("worker_heartbeats", []) if w["status"] == "active"]
+            running_count = health.get("running_count", 0)
+            
+            if running_count > 0 and len(active_workers) == 0:
+                checks["job_queue"] = {
+                    "status": "warning",
+                    "reason": "Jobs running but no active workers (stale leases)"
+                }
+            else:
+                checks["job_queue"] = {
+                    "status": "ok",
+                    "queued": health.get("queued_count", 0),
+                    "running": running_count,
+                    "workers": len(active_workers)
+                }
+    except Exception as e:
+        checks["job_queue"] = {
+            "status": "warning",
+            "reason": f"Could not check job queue: {e}"
+        }
+    
+    # Check 7: Migration status
     migrations = {}
     if catalogue_schema_ok:
         try:
