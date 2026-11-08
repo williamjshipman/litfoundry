@@ -885,3 +885,5 @@ def transfer_all_user_projects():
             "status": "transferred",
             "projects_count": len(projects)
         })
+    finally:
+        db_session.remove()
