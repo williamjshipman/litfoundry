@@ -9,6 +9,105 @@ from typing import Any
 from litfoundry import __version__
 
 
+def get_catalogue_schema_version(catalogue_db: Path) -> int:
+    """Get the current schema version of the catalogue database.
+    
+    Args:
+        catalogue_db: Path to the catalogue database
+        
+    Returns:
+        Schema version number, or 0 if not found
+    """
+    try:
+        conn = sqlite3.connect(str(catalogue_db))
+        cursor = conn.cursor()
+        
+        # Get the latest version from alembic_version table
+        cursor.execute("SELECT version_num FROM alembic_version ORDER BY version_num DESC LIMIT 1")
+        row = cursor.fetchone()
+        conn.close()
+        
+        if not row:
+            return 0
+        
+        # Extract version number from revision ID
+        version_str = row[0].split("_")[0]
+        return int(version_str)
+    except Exception:
+        return 0
+
+
+def get_expected_catalogue_schema_version() -> int:
+    """Get the expected (latest) catalogue schema version.
+    
+    Returns:
+        The latest schema version number
+    """
+    project_root = Path(__file__).parent.parent.parent  # Up from src/litfoundry/
+    versions_dir = project_root / "migrations" / "catalog" / "versions"
+    
+    if not versions_dir.exists():
+        return 0
+    
+    # Find the highest numbered migration file
+    max_version = 0
+    for f in versions_dir.glob("*.py"):
+        if f.name == "__init__.py" or f.name == "__pycache__":
+            continue
+        try:
+            version = int(f.name.split("_")[0])
+            max_version = max(max_version, version)
+        except (ValueError, IndexError):
+            pass
+    
+    return max_version
+
+
+def get_project_schema_versions(data_root: Path) -> dict[str, int]:
+    """Get schema versions for all projects.
+    
+    Args:
+        data_root: Path to the data root
+        
+    Returns:
+        Dict mapping project ID to schema version
+    """
+    versions = {}
+    
+    projects_dir = data_root / "projects"
+    if not projects_dir.exists():
+        return versions
+    
+    for project_dir in projects_dir.iterdir():
+        if not project_dir.is_dir():
+            continue
+        
+        project_id = project_dir.name
+        project_db = project_dir / "project.sqlite"
+        
+        if not project_db.exists():
+            versions[project_id] = 0
+            continue
+        
+        try:
+            conn = sqlite3.connect(str(project_db))
+            cursor = conn.cursor()
+            
+            cursor.execute("SELECT version_num FROM alembic_version ORDER BY version_num DESC LIMIT 1")
+            row = cursor.fetchone()
+            conn.close()
+            
+            if row:
+                version_str = row[0].split("_")[0]
+                versions[project_id] = int(version_str)
+            else:
+                versions[project_id] = 0
+        except Exception:
+            versions[project_id] = 0
+    
+    return versions
+
+
 def check_status(data_root: Path) -> dict[str, Any]:
     """Check the status of a LitFoundry installation.
     
@@ -17,6 +116,7 @@ def check_status(data_root: Path) -> dict[str, Any]:
     - healthy: boolean indicating if all critical checks passed
     - version: application version
     - checks: dict of individual check results
+    - migrations: migration status info
     
     Exits with non-zero status if any critical check fails.
     """
@@ -62,6 +162,7 @@ def check_status(data_root: Path) -> dict[str, Any]:
         all_healthy = False
     
     # Check 3: Catalogue database exists and is readable
+    catalogue_schema_ok = True
     try:
         catalogue_db = data_root / "catalog.sqlite"
         if not catalogue_db.is_file():
@@ -70,6 +171,7 @@ def check_status(data_root: Path) -> dict[str, Any]:
                 "reason": "Catalogue database not found"
             }
             all_healthy = False
+            catalogue_schema_ok = False
         else:
             # Try to connect and verify schema is initialized
             try:
@@ -87,6 +189,7 @@ def check_status(data_root: Path) -> dict[str, Any]:
                         "reason": "Catalogue schema not initialized (missing schema_meta table)"
                     }
                     all_healthy = False
+                    catalogue_schema_ok = False
                 else:
                     # Check system_settings table as well
                     cursor.execute(
@@ -99,6 +202,7 @@ def check_status(data_root: Path) -> dict[str, Any]:
                             "reason": "Catalogue schema incomplete (missing system_settings table)"
                         }
                         all_healthy = False
+                        catalogue_schema_ok = False
                     else:
                         conn.close()
                         checks["catalogue"] = {"status": "ok"}
@@ -108,12 +212,14 @@ def check_status(data_root: Path) -> dict[str, Any]:
                     "reason": f"Catalogue database error: {str(e)}"
                 }
                 all_healthy = False
+                catalogue_schema_ok = False
     except Exception as e:
         checks["catalogue"] = {
             "status": "failed",
             "reason": str(e)
         }
         all_healthy = False
+        catalogue_schema_ok = False
     
     # Check 4: Logs directory exists
     try:
@@ -158,6 +264,49 @@ def check_status(data_root: Path) -> dict[str, Any]:
             "reason": str(e)
         }
     
+    # Check 6: Migration status
+    migrations = {}
+    if catalogue_schema_ok:
+        try:
+            current_version = get_catalogue_schema_version(data_root / "catalog.sqlite")
+            expected_version = get_expected_catalogue_schema_version()
+            
+            if current_version < expected_version:
+                checks["migrations"] = {
+                    "status": "warning",
+                    "reason": f"Catalogue schema v{current_version}, expected v{expected_version}. Run 'litfoundry migrate'"
+                }
+                migrations["status"] = "pending"
+                migrations["catalogue_current"] = current_version
+                migrations["catalogue_expected"] = expected_version
+            else:
+                checks["migrations"] = {"status": "ok"}
+                migrations["status"] = "current"
+                migrations["catalogue_version"] = current_version
+            
+            # Check project schema versions
+            project_versions = get_project_schema_versions(data_root)
+            expected_project_version = 1  # Latest project schema version
+            
+            at_current = 0
+            pending = 0
+            for project_id, version in sorted(project_versions.items()):
+                if version < expected_project_version:
+                    pending += 1
+                else:
+                    at_current += 1
+            
+            if pending > 0:
+                migrations["projects_pending_migration"] = pending
+                migrations["projects_current"] = at_current
+            else:
+                migrations["projects_current"] = at_current
+        except Exception as e:
+            checks["migrations"] = {
+                "status": "warning",
+                "reason": f"Could not check migration status: {e}"
+            }
+    
     # Determine overall status
     if all_healthy:
         status = "healthy"
@@ -168,6 +317,7 @@ def check_status(data_root: Path) -> dict[str, Any]:
         "status": status,
         "healthy": all_healthy,
         "version": __version__,
-        "checks": checks
+        "checks": checks,
+        "migrations": migrations
     }
 

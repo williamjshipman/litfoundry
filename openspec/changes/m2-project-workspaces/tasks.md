@@ -2,19 +2,19 @@
 
 ## 1. Schemas and migrations
 
-- [ ] 1.1 Add catalogue revisions for `project_directory` (states, `relative_path`, `project_schema_version`) and `system_leases`. Verify with migration tests.
-- [ ] 1.2 Create the project-template Alembic environment and the first revision (`project_info`, `project_audit_events`, `project_people`). Verify that a programmatic upgrade on a temporary project database reaches head.
-- [ ] 1.3 Implement `litfoundry migrate`: maintenance lease, pre-migration backup, catalogue then each project, integrity checks, recorded versions, and restore on failure. Verify with fixture databases at prior versions and a deliberately failing script (§19 group 4).
+- [x] 1.1 Add catalogue revisions for `project_directory` (states, `relative_path`, `project_schema_version`) and `system_leases`. Verify with migration tests.
+- [x] 1.2 Create the project-template Alembic environment and the first revision (`project_info`, `project_audit_events`, `project_people`). Verify that a programmatic upgrade on a temporary project database reaches head.
+- [x] 1.3 Implement `litfoundry migrate`: maintenance lease, pre-migration backup, catalogue then each project, integrity checks, recorded versions, and restore on failure. Verify with fixture databases at prior versions and a deliberately failing script (§19 group 4).
 - [ ] 1.4 Implement the schema version gate for `serve` and `worker`, and the project-level gate. Verify with startup tests for older and newer catalogue versions.
-- [ ] 1.5 Report migration status in readiness, `litfoundry status` and the admin system screen. Verify with API and CLI tests.
+- [x] 1.5 Report migration status in readiness, `litfoundry status` and the admin system screen. Verify with API and CLI tests.
 
 ## 2. Project storage
 
-- [ ] 2.1 Implement `ProjectDatabaseRouter` (`NullPool`, PRAGMAs per connect, state and version re-check, containment). Verify with unit tests and a forged-UUID test (§19 group 3).
-- [ ] 2.2 Implement staged provisioning with atomic rename and clean-up on failure. Verify with fault-injection tests at each step.
-- [ ] 2.3 Implement the write-once file helper (temporary name, fsync, `os.replace`), placing each file before the database row that references it is committed. Verify with a kill-during-write test and a test that no committed row references a missing file.
-- [ ] 2.4 Write `manifest.json` (product, UUID, schema version, no absolute paths). Verify with a unit test.
-- [ ] 2.5 Implement `litfoundry reconcile` for orphan `provisioning` rows, folders without rows and stuck `deleting` projects. Verify with crash-simulation fixtures.
+- [x] 2.1 Implement `ProjectDatabaseRouter` (`NullPool`, PRAGMAs per connect, state and version re-check, containment). Verify with unit tests and a forged-UUID test (§19 group 3).
+- [x] 2.2 Implement staged provisioning with atomic rename and clean-up on failure. Verify with fault-injection tests at each step.
+- [x] 2.3 Implement the write-once file helper (temporary name, fsync, `os.replace`), placing each file before the database row that references it is committed. Verify with a kill-during-write test and a test that no committed row references a missing file.
+- [x] 2.4 Write `manifest.json` (product, UUID, schema version, no absolute paths). Verify with a unit test.
+- [x] 2.5 Implement `litfoundry reconcile` for orphan `provisioning` rows, folders without rows and stuck `deleting` projects. Verify with crash-simulation fixtures.
 - [ ] 2.6 Add a Windows CI test that deletes a project immediately after another process used it. Verify it passes on the Windows runner (§19 group 3).
 
 ## 3. Lifecycle API
