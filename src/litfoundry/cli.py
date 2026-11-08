@@ -572,5 +572,107 @@ def status(data_root: str | None) -> None:
         sys.exit(1)
 
 
+@main.command()
+@click.option(
+    "--data-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    envvar="LITFOUNDRY_DATA_ROOT",
+    help="Data root directory. If not set, uses platform default.",
+)
+def worker(data_root: str | None) -> None:
+    """Start a background job worker process.
+    
+    This process claims and executes long-running jobs from the queue.
+    The supervisor typically runs multiple worker processes.
+    """
+    from litfoundry.catalog import create_catalog_engine
+    from litfoundry.jobs.worker import Worker
+    from litfoundry.jobs.handlers import create_test_job_handler
+
+    root = Path(data_root) if data_root else Config.get_default_data_root()
+
+    try:
+        # Create catalog engine
+        catalog_path = root / "catalog.sqlite"
+        engine = create_catalog_engine(catalog_path)
+
+        # Create worker
+        worker_instance = Worker(engine, root)
+
+        # Register default handlers (test job, and others)
+        worker_instance.register_handler("test", create_test_job_handler())
+
+        # Run the worker
+        worker_instance.run()
+
+    except KeyboardInterrupt:
+        click.echo("Worker interrupted", err=False)
+        sys.exit(0)
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.option(
+    "--data-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    envvar="LITFOUNDRY_DATA_ROOT",
+    help="Data root directory. If not set, uses platform default.",
+)
+@click.option(
+    "--port",
+    type=int,
+    default=5080,
+    envvar="LITFOUNDRY_PORT",
+    help="Port for the server to listen on (default: 5080).",
+)
+@click.option(
+    "--mode",
+    type=click.Choice(["server", "workstation"]),
+    envvar="LITFOUNDRY_RUN_MODE",
+    default="server",
+    help="Execution mode: server (behind proxy) or workstation (local only).",
+)
+@click.option(
+    "--workers",
+    type=int,
+    default=4,
+    envvar="LITFOUNDRY_NUM_WORKERS",
+    help="Number of worker processes (default: 4).",
+)
+def supervise(data_root: str | None, port: int, mode: str, workers: int) -> None:
+    """Start the supervisor process.
+    
+    This is the main entry point for running LitFoundry with a managed
+    server and worker pool. The supervisor restarts any crashed processes
+    and forwards signals for graceful shutdown.
+    
+    Typically used by OS service managers instead of running serve/worker separately.
+    """
+    from litfoundry.jobs.worker import Supervisor
+
+    root = Path(data_root) if data_root else Config.get_default_data_root()
+
+    try:
+        # Create supervisor
+        supervisor = Supervisor(
+            data_root=root,
+            port=port,
+            mode=mode,
+            num_workers=workers,
+        )
+
+        # Run the supervisor
+        supervisor.run()
+
+    except KeyboardInterrupt:
+        click.echo("Supervisor interrupted", err=False)
+        sys.exit(0)
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()

@@ -26,6 +26,10 @@ LEASE_DURATION_SECONDS = 60  # Leases last 60 seconds
 HEARTBEAT_INTERVAL_SECONDS = 10  # Heartbeat every 10 seconds
 DRAIN_TIMEOUT_SECONDS = 120  # Wait max 120 seconds for active writers to drain
 
+# Concurrency limits
+MAX_RUNNING_JOBS_GLOBAL = 20  # Maximum jobs running across all users
+MAX_RUNNING_JOBS_PER_USER = 5  # Maximum jobs running per user
+
 
 class JobCancelled(Exception):
     """Exception raised when a job is cancelled."""
@@ -307,9 +311,10 @@ class JobQueue:
         
         Uses atomic UPDATE ... SELECT to claim a single job.
         This is safe under SQLite's database-level write lock.
+        Respects global and per-user concurrency limits.
         
         Returns:
-            Job if one was claimed, None if queue is empty
+            Job if one was claimed, None if queue is empty or limits exceeded
         """
         now = datetime.now(timezone.utc)
         
@@ -317,7 +322,49 @@ class JobQueue:
             # First, reclaim expired leases
             self._reclaim_expired_leases(conn, now)
             
-            # Atomic claim: update the first queued job with our lease
+            # Check global concurrency limit before attempting claim
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM jobs WHERE status = :running"
+                ),
+                {"running": JobStatus.RUNNING.value},
+            )
+            if result.scalar() >= MAX_RUNNING_JOBS_GLOBAL:
+                return None
+            
+            # Find the next queued job (but don't claim yet if user limit would be exceeded)
+            result = conn.execute(
+                text(
+                    """
+                    SELECT id, user_id FROM jobs
+                    WHERE status = :queued_status
+                        AND not_before <= :now
+                    ORDER BY priority DESC, created_at ASC
+                    LIMIT 1
+                    """
+                ),
+                {
+                    "queued_status": JobStatus.QUEUED.value,
+                    "now": now,
+                },
+            )
+            next_job_row = result.fetchone()
+            if not next_job_row:
+                return None
+            
+            job_id, user_id = next_job_row
+            
+            # Check per-user concurrency limit
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM jobs WHERE user_id = :user_id AND status = :running"
+                ),
+                {"user_id": user_id, "running": JobStatus.RUNNING.value},
+            )
+            if result.scalar() >= MAX_RUNNING_JOBS_PER_USER:
+                return None
+            
+            # Atomic claim: update the job with our lease
             result = conn.execute(
                 text(
                     """
@@ -326,34 +373,27 @@ class JobQueue:
                         lease_expires_at = :lease_expires_at,
                         status = :status,
                         updated_at = :updated_at
-                    WHERE id = (
-                        SELECT id FROM jobs
-                        WHERE status = :queued_status
-                            AND not_before <= :now
-                        ORDER BY priority DESC, created_at ASC
-                        LIMIT 1
-                    )
-                    AND lease_owner IS NULL
+                    WHERE id = :id
+                        AND lease_owner IS NULL
                     """
                 ),
                 {
+                    "id": job_id,
                     "lease_owner": self.worker_id,
                     "lease_expires_at": now + timedelta(seconds=LEASE_DURATION_SECONDS),
                     "status": JobStatus.RUNNING.value,
-                    "queued_status": JobStatus.QUEUED.value,
-                    "now": now,
                     "updated_at": now,
                 },
             )
             
-            # If nothing was claimed, try to find which job was claimed
+            # If nothing was claimed, someone beat us to it
             if result.rowcount == 0:
                 return None
             
             # Get the job we just claimed
             result = conn.execute(
-                text("SELECT * FROM jobs WHERE lease_owner = :owner LIMIT 1"),
-                {"owner": self.worker_id},
+                text("SELECT * FROM jobs WHERE id = :id"),
+                {"id": job_id},
             )
             row = result.fetchone()
             if not row:
@@ -699,6 +739,128 @@ class JobQueue:
                 },
             )
 
+    def get_job(self, job_id: str) -> Optional[Job]:
+        """Get a job by ID.
+        
+        Args:
+            job_id: Job ID
+            
+        Returns:
+            Job object if found, None otherwise
+        """
+        with self.catalog_engine.connect() as conn:
+            result = conn.execute(
+                text("SELECT * FROM jobs WHERE id = :id"),
+                {"id": job_id},
+            )
+            row = result.fetchone()
+            if not row:
+                return None
+            return self._row_to_job(row)
+
+    def list_jobs(self, user_id: Optional[str] = None, limit: int = 50) -> List[Job]:
+        """List jobs, optionally filtered by user.
+        
+        Args:
+            user_id: If provided, list only this user's jobs
+            limit: Maximum number of jobs to return
+            
+        Returns:
+            List of Job objects ordered by created_at desc
+        """
+        with self.catalog_engine.connect() as conn:
+            if user_id:
+                result = conn.execute(
+                    text(
+                        "SELECT * FROM jobs WHERE user_id = :user_id ORDER BY created_at DESC LIMIT :limit"
+                    ),
+                    {"user_id": user_id, "limit": limit},
+                )
+            else:
+                result = conn.execute(
+                    text(
+                        "SELECT * FROM jobs ORDER BY created_at DESC LIMIT :limit"
+                    ),
+                    {"limit": limit},
+                )
+            
+            jobs = []
+            for row in result.fetchall():
+                jobs.append(self._row_to_job(row))
+            return jobs
+
+    def cancel_job(self, job_id: str) -> None:
+        """Cancel a job (idempotent).
+        
+        Moves queued -> cancelled or running -> cancelling.
+        The actual transition to cancelled happens at the next checkpoint.
+        
+        Args:
+            job_id: Job ID
+        """
+        now = datetime.now(timezone.utc)
+        
+        with self.catalog_engine.begin() as conn:
+            # Get current job status
+            result = conn.execute(
+                text("SELECT status FROM jobs WHERE id = :id"),
+                {"id": job_id},
+            )
+            row = result.fetchone()
+            if not row:
+                return  # Job doesn't exist (already deleted or never was)
+            
+            current_status = JobStatus(row[0])
+            
+            # If already cancelled/cancelling, return immediately (idempotent)
+            if current_status in (JobStatus.CANCELLED, JobStatus.CANCELLING):
+                return
+            
+            # If completed/failed, can't cancel
+            if current_status in (JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.PARTIAL):
+                return  # Job already finished
+            
+            # If queued, move directly to cancelled
+            if current_status == JobStatus.QUEUED:
+                new_status = JobStatus.CANCELLED
+                conn.execute(
+                    text(
+                        """
+                        UPDATE jobs SET
+                            status = :status,
+                            completed_at = :completed_at,
+                            lease_owner = NULL,
+                            lease_expires_at = NULL,
+                            updated_at = :updated_at
+                        WHERE id = :id
+                        """
+                    ),
+                    {
+                        "status": new_status.value,
+                        "completed_at": now,
+                        "id": job_id,
+                        "updated_at": now,
+                    },
+                )
+            
+            # If running, move to cancelling
+            elif current_status == JobStatus.RUNNING:
+                conn.execute(
+                    text(
+                        """
+                        UPDATE jobs SET
+                            status = :status,
+                            updated_at = :updated_at
+                        WHERE id = :id
+                        """
+                    ),
+                    {
+                        "status": JobStatus.CANCELLING.value,
+                        "id": job_id,
+                        "updated_at": now,
+                    },
+                )
+
     # Private helper methods
 
     def _reclaim_expired_leases(self, conn, now: datetime) -> None:
@@ -914,6 +1076,69 @@ class JobQueue:
         """Check if the project is busy with another write."""
         # This is a stub - full implementation is in task 3.2
         pass
+
+    def _check_concurrency_limits(self, user_id: str) -> bool:
+        """Check if a user has exceeded concurrency limits.
+        
+        Returns:
+            True if limits allow a new job, False if limits exceeded
+        """
+        with self.catalog_engine.connect() as conn:
+            # Check global limit
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM jobs WHERE status = :running"
+                ),
+                {"running": JobStatus.RUNNING.value},
+            )
+            global_running = result.scalar()
+            if global_running >= MAX_RUNNING_JOBS_GLOBAL:
+                logger.warning(
+                    f"Global concurrency limit reached ({global_running}/{MAX_RUNNING_JOBS_GLOBAL})"
+                )
+                return False
+
+            # Check per-user limit
+            result = conn.execute(
+                text(
+                    "SELECT COUNT(*) FROM jobs WHERE user_id = :user_id AND status = :running"
+                ),
+                {"user_id": user_id, "running": JobStatus.RUNNING.value},
+            )
+            user_running = result.scalar()
+            if user_running >= MAX_RUNNING_JOBS_PER_USER:
+                logger.warning(
+                    f"User {user_id} concurrency limit reached ({user_running}/{MAX_RUNNING_JOBS_PER_USER})"
+                )
+                return False
+
+            return True
+
+    def get_running_jobs_count(self, user_id: Optional[str] = None) -> int:
+        """Get the number of running jobs globally or for a user.
+        
+        Args:
+            user_id: If provided, count only this user's jobs
+            
+        Returns:
+            Number of running jobs
+        """
+        with self.catalog_engine.connect() as conn:
+            if user_id:
+                result = conn.execute(
+                    text(
+                        "SELECT COUNT(*) FROM jobs WHERE user_id = :user_id AND status = :running"
+                    ),
+                    {"user_id": user_id, "running": JobStatus.RUNNING.value},
+                )
+            else:
+                result = conn.execute(
+                    text(
+                        "SELECT COUNT(*) FROM jobs WHERE status = :running"
+                    ),
+                    {"running": JobStatus.RUNNING.value},
+                )
+            return result.scalar()
 
     @staticmethod
     def _row_to_job(row) -> Job:

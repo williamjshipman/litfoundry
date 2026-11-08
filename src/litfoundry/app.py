@@ -79,7 +79,7 @@ def create_app(config: dict | None = None) -> Flask:
     setup_security_middleware(app)
 
     # Register blueprints
-    from litfoundry.api import admin, health, auth, ad_directory, projects
+    from litfoundry.api import admin, health, auth, ad_directory, projects, jobs
 
     app.register_blueprint(health.bp)
     app.register_blueprint(admin.bp)
@@ -88,6 +88,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.register_blueprint(auth.setup_bp)
     app.register_blueprint(projects.bp)
     app.register_blueprint(projects.users_bp)
+    app.register_blueprint(jobs.jobs_bp)
 
     # Setup middleware (proxy handling, host allowlist, and CORS)
     from litfoundry.middleware import setup_middleware
