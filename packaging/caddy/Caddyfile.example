@@ -1,0 +1,72 @@
+# Caddy reverse proxy configuration for LitFoundry
+#
+# This is an example Caddyfile for running LitFoundry in server mode
+# behind a TLS-terminating reverse proxy.
+#
+# This configuration:
+# - Redirects HTTP to HTTPS
+# - Terminates TLS with an internal or trusted CA certificate
+# - Proxies requests to the LitFoundry server on 127.0.0.1:5080
+#
+# Requirements:
+# - LitFoundry running on 127.0.0.1:5080 (default)
+# - Caddy installed and running with this configuration
+# - TLS certificate and key (generated, self-signed, or from a CA)
+#
+# Usage:
+# 1. Replace "litfoundry.example.internal" with your actual hostname
+# 2. Replace the tls directive with your certificate paths or email
+# 3. Run: caddy start
+# 4. Access: https://litfoundry.example.internal
+#
+# For more information:
+# - Caddy documentation: https://caddyserver.com/docs
+# - LitFoundry deployment guide: ../docs/deployment.md
+
+# HTTP to HTTPS redirect and reverse proxy
+litfoundry.example.internal {
+	# Redirect all HTTP traffic to HTTPS
+	@insecure {
+		scheme http
+	}
+	redir @insecure https://{host}{uri}
+
+	# TLS configuration
+	# Option 1: Use Caddy's automatic HTTPS (requires valid domain or internal CA)
+	# tls internal     # For internal/self-signed certificates (Caddy 2.8+)
+	
+	# Option 2: Use explicit certificate paths
+	# tls /path/to/cert.pem /path/to/key.pem
+	
+	# Option 3: Use an ACME provider (for public domains only)
+	# tls your-email@example.com
+
+	# Reverse proxy to LitFoundry
+	reverse_proxy 127.0.0.1:5080 {
+		# Preserve original request headers for LitFoundry
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto {http.request.scheme}
+		header_up X-Forwarded-Host {http.request.host}
+		
+		# Connection and response timeouts
+		transport http {
+			# Time to establish TCP connection to upstream (loopback is instant)
+			dial_timeout 10s
+			# Time to receive response headers from upstream (API should respond quickly)
+			response_timeout 10s
+		}
+		
+		# Time to receive response body data (allows large exports/downloads to stream)
+		stream_timeout 30s
+	}
+
+	# Logging (optional)
+	log {
+		output file /var/log/caddy/litfoundry.log {
+			roll_size 100mb
+			roll_keep 10
+		}
+		format json
+		level info
+	}
+}

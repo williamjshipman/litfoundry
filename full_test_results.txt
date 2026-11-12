@@ -1,0 +1,1983 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.2.0, pluggy-1.7.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\williams\git\litfoundry
+configfile: pyproject.toml
+plugins: anyio-4.13.0, platformdirs-4.14.0, cov-7.1.0, flask-1.3.0, httpx-0.36.2, xdist-3.8.0
+collecting ... collected 406 items
+
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_exists PASSED [  0%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_returns_json PASSED [  0%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_returns_logs_array PASSED [  0%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_returns_metadata PASSED [  0%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_with_missing_log_file PASSED [  1%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_without_data_root PASSED [  1%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_limit_parameter_validation PASSED [  1%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_invalid_limit_defaults PASSED [  1%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_filters_level_parameter PASSED [  2%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_filters_request_id_parameter PASSED [  2%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_filters_job_id_parameter PASSED [  2%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_filters_process_parameter PASSED [  2%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_combined_filters PASSED [  3%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_symlink_escape_prevented PASSED [  3%]
+tests/test_admin_logs_endpoint.py::TestAdminLogsEndpoint::test_logs_endpoint_malformed_log_file_handling PASSED [  3%]
+tests/test_api_errors.py::test_api_error_to_dict PASSED                  [  3%]
+tests/test_api_errors.py::test_api_error_to_dict ERROR                   [  3%]
+tests/test_api_errors.py::test_api_error_with_details PASSED             [  4%]
+tests/test_api_errors.py::test_api_error_with_details ERROR              [  4%]
+tests/test_api_errors.py::test_error_code_registry PASSED                [  4%]
+tests/test_api_errors.py::test_each_code_maps_to_single_status PASSED    [  4%]
+tests/test_api_errors.py::test_unexpected_exception_returns_500 PASSED   [  4%]
+tests/test_api_errors.py::test_unexpected_exception_returns_500 ERROR    [  4%]
+tests/test_api_errors.py::test_x_request_id_header_on_all_responses PASSED [  5%]
+tests/test_api_errors.py::test_x_request_id_header_on_all_responses ERROR [  5%]
+tests/test_api_errors.py::test_x_request_id_on_error_response PASSED     [  5%]
+tests/test_api_errors.py::test_x_request_id_on_error_response ERROR      [  5%]
+tests/test_api_errors.py::test_api_error_handler PASSED                  [  5%]
+tests/test_api_errors.py::test_api_error_handler ERROR                   [  5%]
+tests/test_api_errors.py::test_request_id_persistence PASSED             [  5%]
+tests/test_api_errors.py::test_request_id_persistence ERROR              [  5%]
+tests/test_bootstrap_flow.py::TestSetupGate::test_setup_status_no_admin PASSED [  6%]
+tests/test_bootstrap_flow.py::TestSetupGate::test_setup_status_with_admin PASSED [  6%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_generate_token PASSED [  6%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_hash_and_verify_token PASSED [  6%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_token_expiry_time PASSED [  7%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_token_expiry_check PASSED [  7%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_write_token_file PASSED [  7%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_delete_token_file PASSED [  7%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_success PASSED [  8%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_missing_token PASSED [  8%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_weak_password PASSED [  8%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_invalid_token PASSED [  8%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_expired_token PASSED [  9%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_already_exists PASSED [  9%]
+tests/test_bootstrap_flow.py::TestAdminCreation::test_setup_admin_token_consumed_once PASSED [  9%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenCommands::test_bootstrap_token_generation PASSED [  9%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_create_catalog_engine PASSED [ 10%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_pragma_journal_mode_wal PASSED [ 10%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_pragma_foreign_keys_on PASSED [ 10%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_pragma_busy_timeout PASSED [ 10%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_run_alembic_upgrade PASSED [ 11%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_catalog_engine_persistence PASSED [ 11%]
+tests/test_catalog_engine.py::TestCatalogueEngine::test_catalog_engine_with_wal_creates_wal_file PASSED [ 11%]
+tests/test_cli.py::TestCLI::test_version FAILED                          [ 11%]
+tests/test_cli.py::TestCLI::test_help FAILED                             [ 12%]
+tests/test_cli_serve.py::TestServeCLI::test_serve_requires_mode PASSED   [ 12%]
+tests/test_cli_serve.py::TestServeCLI::test_serve_mode_options_valid FAILED [ 12%]
+tests/test_cli_serve.py::TestServeCLI::test_serve_mode_invalid_option PASSED [ 12%]
+tests/test_cli_serve.py::TestServeCLI::test_serve_mode_from_env_var FAILED [ 13%]
+tests/test_cli_serve.py::TestServeCLI::test_serve_cli_arg_overrides_env_var FAILED [ 13%]
+tests/test_config.py::TestConfigDefaults::test_default_data_root_windows PASSED [ 13%]
+tests/test_config.py::TestConfigDefaults::test_default_data_root_macos PASSED [ 13%]
+tests/test_config.py::TestConfigDefaults::test_default_data_root_linux PASSED [ 14%]
+tests/test_config.py::TestConfigDefaults::test_default_run_mode PASSED   [ 14%]
+tests/test_config.py::TestConfigDefaults::test_default_port PASSED       [ 14%]
+tests/test_config.py::TestConfigDefaults::test_default_allowed_hosts PASSED [ 14%]
+tests/test_config.py::TestConfigLoading::test_load_from_env_overrides PASSED [ 15%]
+tests/test_config.py::TestConfigLoading::test_load_from_env_keeps_defaults PASSED [ 15%]
+tests/test_config.py::TestConfigLoading::test_unprefixed_variables_ignored PASSED [ 15%]
+tests/test_config.py::TestConfigLoading::test_port_type_conversion PASSED [ 15%]
+tests/test_config.py::TestConfigLoading::test_invalid_port_keeps_default PASSED [ 16%]
+tests/test_config.py::TestConfigToDict::test_to_dict PASSED              [ 16%]
+tests/test_constants.py::TestProductConstants::test_name PASSED          [ 16%]
+tests/test_constants.py::TestProductConstants::test_tagline_exact PASSED [ 16%]
+tests/test_constants.py::TestProductConstants::test_description_exact PASSED [ 16%]
+tests/test_constants.py::TestProductConstants::test_license PASSED       [ 17%]
+tests/test_constants.py::TestProductConstants::test_version PASSED       [ 17%]
+tests/test_constants.py::TestProductConstants::test_process_names PASSED [ 17%]
+tests/test_constants.py::TestProductConstants::test_about_text_contains_name PASSED [ 17%]
+tests/test_constants.py::TestProductConstants::test_about_text_contains_tagline PASSED [ 18%]
+tests/test_constants.py::TestProductConstants::test_about_text_contains_version PASSED [ 18%]
+tests/test_constants.py::TestProductConstants::test_about_text_contains_license PASSED [ 18%]
+tests/test_constants.py::TestProductConstants::test_about_text_contains_admin_disclosure PASSED [ 18%]
+tests/test_constants.py::TestProductConstants::test_about_text_comprehensive PASSED [ 19%]
+tests/test_deployment.py::TestCaddyfileConfiguration::test_caddyfile_exists PASSED [ 19%]
+tests/test_deployment.py::TestCaddyfileConfiguration::test_caddyfile_has_content PASSED [ 19%]
+tests/test_deployment.py::TestCaddyfileConfiguration::test_caddyfile_comments_are_helpful PASSED [ 19%]
+tests/test_deployment.py::TestCaddyfileConfiguration::test_caddyfile_validates_with_caddy_if_available PASSED [ 20%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_exist PASSED [ 20%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_have_content PASSED [ 20%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_cover_all_oses PASSED [ 20%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_proxy PASSED [ 21%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_ca_trust PASSED [ 21%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_firewall PASSED [ 21%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_https_only PASSED [ 21%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_logging PASSED [ 22%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_troubleshooting PASSED [ 22%]
+tests/test_deployment.py::TestDeploymentDocumentation::test_deployment_docs_mention_data_root_location PASSED [ 22%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_always_returns_200 PASSED [ 22%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_always_returns_200 ERROR [ 22%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_returns_json PASSED [ 23%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_returns_json ERROR [ 23%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_has_status_field PASSED [ 23%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_has_status_field ERROR [ 23%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_with_missing_data_root PASSED [ 23%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_with_broken_data_root PASSED [ 23%]
+tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_with_broken_data_root ERROR [ 23%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_healthy_data_root PASSED [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_healthy_data_root ERROR [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_returns_json PASSED [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_returns_json ERROR [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_has_checks_field PASSED [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_has_checks_field ERROR [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_missing_data_root PASSED [ 24%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_missing_catalogue PASSED [ 25%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_missing_catalogue ERROR [ 25%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_response_structure_success PASSED [ 25%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_response_structure_success ERROR [ 25%]
+tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_response_structure_failure PASSED [ 25%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_both_endpoints_accessible PASSED [ 25%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_both_endpoints_accessible ERROR [ 25%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_endpoints_use_correct_methods FAILED [ 26%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_endpoints_use_correct_methods ERROR [ 26%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_ready_with_empty_database FAILED [ 26%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_ready_distinguishes_schema_from_connectivity PASSED [ 26%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_ready_distinguishes_schema_from_connectivity ERROR [ 26%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_live_endpoint_has_no_side_effects PASSED [ 26%]
+tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_live_endpoint_has_no_side_effects ERROR [ 26%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_users_table_exists_with_columns PASSED [ 27%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_auth_settings_table_exists PASSED [ 27%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_login_throttle_table_exists PASSED [ 27%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_refresh_tokens_table_exists PASSED [ 27%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_bootstrap_tokens_table_exists PASSED [ 28%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_audit_events_table_exists PASSED [ 28%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_local_username_uniqueness_index PASSED [ 28%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_admin_role_uniqueness_constraint PASSED [ 28%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_has_correct_name PASSED [ 29%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_with_valid_password PASSED [ 29%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_case_insensitive PASSED [ 29%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_wrong_password PASSED [ 29%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_unknown_user PASSED [ 30%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_timing_equalization PASSED [ 30%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_inactive_user PASSED [ 30%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_change_password PASSED [ 30%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_change_password_validation PASSED [ 31%]
+tests/test_identity_schema.py::TestCreateUserWithPassword::test_create_user_with_password PASSED [ 31%]
+tests/test_initialization.py::TestDataRootInitialization::test_init_creates_all_required_directories FAILED [ 31%]
+tests/test_initialization.py::TestDataRootInitialization::test_init_fresh_root FAILED [ 31%]
+tests/test_initialization.py::TestDataRootInitialization::test_init_idempotent FAILED [ 32%]
+tests/test_initialization.py::TestDataRootInitialization::test_reinitialize_data_root FAILED [ 32%]
+tests/test_initialization.py::TestDataRootInitialization::test_init_with_real_permissions FAILED [ 32%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_password PASSED [ 32%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_token PASSED [ 33%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_api_key PASSED [ 33%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_refresh_token PASSED [ 33%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_csrf_token PASSED [ 33%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_authorization_header PASSED [ 33%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_multiple_secrets PASSED [ 34%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_preserves_non_secret_data PASSED [ 34%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_case_insensitive PASSED [ 34%]
+tests/test_logging.py::TestRedactionFilter::test_redaction_filter_redacts_exception_text PASSED [ 34%]
+tests/test_logging.py::TestJSONFormatter::test_json_formatter_creates_valid_json PASSED [ 35%]
+tests/test_logging.py::TestJSONFormatter::test_json_formatter_includes_required_fields PASSED [ 35%]
+tests/test_logging.py::TestJSONFormatter::test_json_formatter_includes_request_id_when_present PASSED [ 35%]
+tests/test_logging.py::TestJSONFormatter::test_json_formatter_includes_job_id_when_present PASSED [ 35%]
+tests/test_logging.py::TestJSONFormatter::test_json_formatter_includes_exception_info PASSED [ 36%]
+tests/test_logging.py::TestJSONFormatter::test_json_formatter_omits_unset_optional_fields PASSED [ 36%]
+tests/test_logging.py::TestLoggingSetup::test_setup_logging_creates_logs_directory PASSED [ 36%]
+tests/test_logging.py::TestLoggingSetup::test_setup_logging_creates_log_file PASSED [ 36%]
+tests/test_logging.py::TestLoggingSetup::test_setup_logging_writes_json_logs PASSED [ 37%]
+tests/test_logging.py::TestLoggingSetup::test_setup_logging_redacts_secrets_in_output PASSED [ 37%]
+tests/test_logging.py::TestLoggingSetup::test_setup_logging_rotation PASSED [ 37%]
+tests/test_logging.py::TestLoggingSetup::test_setup_logging_respects_process_name PASSED [ 37%]
+tests/test_logging.py::TestStructuredLogger::test_get_structured_logger_returns_adapter PASSED [ 38%]
+tests/test_logging.py::TestStructuredLogger::test_structured_logger_can_log PASSED [ 38%]
+tests/test_middleware.py::TestHostAllowlist::test_allowed_host_passes PASSED [ 38%]
+tests/test_middleware.py::TestHostAllowlist::test_allowed_host_without_port PASSED [ 38%]
+tests/test_middleware.py::TestHostAllowlist::test_disallowed_host_returns_400 PASSED [ 39%]
+tests/test_middleware.py::TestHostAllowlist::test_spoofed_host_returns_400 PASSED [ 39%]
+tests/test_middleware.py::TestHostAllowlist::test_empty_allowlist_allows_all PASSED [ 39%]
+tests/test_middleware.py::TestTrustedProxies::test_spoofed_x_forwarded_for_ignored_from_untrusted PASSED [ 39%]
+tests/test_middleware.py::TestTrustedProxies::test_x_forwarded_for_honored_from_trusted PASSED [ 40%]
+tests/test_middleware.py::TestTrustedProxies::test_x_forwarded_proto_honored_from_trusted PASSED [ 40%]
+tests/test_middleware.py::TestTrustedProxies::test_x_forwarded_host_honored_from_trusted PASSED [ 40%]
+tests/test_middleware.py::TestCORSConfiguration::test_cors_preflight_allowed_origin PASSED [ 40%]
+tests/test_middleware.py::TestCORSConfiguration::test_cors_preflight_disallowed_origin PASSED [ 41%]
+tests/test_middleware.py::TestCORSConfiguration::test_cors_no_preflight_without_config PASSED [ 41%]
+tests/test_middleware.py::TestCORSConfiguration::test_cors_get_with_allowed_origin PASSED [ 41%]
+tests/test_middleware.py::TestCORSConfiguration::test_cors_credentials_allowed PASSED [ 41%]
+tests/test_middleware.py::TestMiddlewareIntegration::test_allowlist_with_trusted_proxy_headers PASSED [ 42%]
+tests/test_middleware.py::TestMiddlewareIntegration::test_request_with_port_in_host_header PASSED [ 42%]
+tests/test_middleware.py::TestMiddlewareIntegration::test_multiple_allowed_hosts PASSED [ 42%]
+tests/test_middleware.py::TestMiddlewareIntegration::test_disallowed_hosts_all_rejected PASSED [ 42%]
+tests/test_middleware.py::TestMiddlewareIntegration::test_cors_with_host_allowlist PASSED [ 43%]
+tests/test_naming_compliance.py::TestNamingCompliance::test_no_forbidden_names_in_pyproject PASSED [ 43%]
+tests/test_naming_compliance.py::TestNamingCompliance::test_no_forbidden_names_in_source PASSED [ 43%]
+tests/test_naming_compliance.py::TestNamingCompliance::test_cli_entry_point FAILED [ 43%]
+tests/test_naming_compliance.py::TestNamingComplianceNegative::test_detects_forbidden_name_in_content PASSED [ 44%]
+tests/test_network_filesystem.py::TestWindowsNetworkDetection::test_reject_unc_path PASSED [ 44%]
+tests/test_network_filesystem.py::TestWindowsNetworkDetection::test_reject_network_drive_mocked PASSED [ 44%]
+tests/test_network_filesystem.py::TestWindowsNetworkDetection::test_accept_local_drive_mocked PASSED [ 44%]
+tests/test_network_filesystem.py::TestWindowsNetworkDetection::test_accept_path_when_drive_type_unavailable PASSED [ 45%]
+tests/test_network_filesystem.py::TestLinuxNetworkDetection::test_reject_nfs_mount_mocked SKIPPED [ 45%]
+tests/test_network_filesystem.py::TestLinuxNetworkDetection::test_reject_cifs_mount_mocked SKIPPED [ 45%]
+tests/test_network_filesystem.py::TestLinuxNetworkDetection::test_accept_local_mount_mocked SKIPPED [ 45%]
+tests/test_network_filesystem.py::TestLinuxNetworkDetection::test_accept_path_when_mountinfo_unavailable SKIPPED [ 46%]
+tests/test_network_filesystem.py::TestMacOSNetworkDetection::test_reject_nfs_mount_mocked SKIPPED [ 46%]
+tests/test_network_filesystem.py::TestMacOSNetworkDetection::test_reject_smbfs_mount_mocked SKIPPED [ 46%]
+tests/test_network_filesystem.py::TestMacOSNetworkDetection::test_accept_local_mount_mocked SKIPPED [ 46%]
+tests/test_network_filesystem.py::TestMacOSNetworkDetection::test_accept_path_when_mnttab_unavailable SKIPPED [ 47%]
+tests/test_network_filesystem.py::TestNetworkDetectionIntegration::test_valid_local_path PASSED [ 47%]
+tests/test_network_filesystem.py::TestNetworkDetectionIntegration::test_symlinked_path PASSED [ 47%]
+tests/test_offline_operation.py::TestOfflineOperation::test_server_starts_offline PASSED [ 47%]
+tests/test_offline_operation.py::TestOfflineOperation::test_health_check_works_offline PASSED [ 48%]
+tests/test_offline_operation.py::TestOfflineOperation::test_logs_endpoint_works_offline PASSED [ 48%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_no_external_dependencies_on_startup PASSED [ 48%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_all_blueprints_available PASSED [ 48%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_catalogue_accessible PASSED [ 49%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_no_bootstrap_call_required PASSED [ 49%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_initialization_idempotent_no_network PASSED [ 49%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_no_implicit_api_calls PASSED [ 49%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_configuration_loading PASSED [ 50%]
+tests/test_offline_operation.py::TestOfflineOperation::test_offline_middleware_setup PASSED [ 50%]
+tests/test_offline_operation.py::TestNetworkResilience::test_missing_outbound_service_doesnt_block_initialization PASSED [ 50%]
+tests/test_offline_operation.py::TestNetworkResilience::test_offline_health_endpoints_work PASSED [ 50%]
+tests/test_offline_operation.py::TestNetworkResilience::test_offline_admin_endpoints_work PASSED [ 50%]
+tests/test_offline_operation.py::TestNetworkResilience::test_server_handles_connection_errors PASSED [ 51%]
+tests/test_openapi_contract.py::test_openapi_document_contract FAILED    [ 51%]
+tests/test_openapi_contract.py::test_error_codes_documented PASSED       [ 51%]
+tests/test_openapi_contract.py::test_openapi_is_valid_yaml PASSED        [ 51%]
+tests/test_pagination.py::test_parse_pagination_default PASSED           [ 52%]
+tests/test_pagination.py::test_parse_pagination_custom_limit PASSED      [ 52%]
+tests/test_pagination.py::test_parse_pagination_limit_clamping PASSED    [ 52%]
+tests/test_pagination.py::test_parse_pagination_invalid_limit PASSED     [ 52%]
+tests/test_pagination.py::test_parse_pagination_cursor PASSED            [ 53%]
+tests/test_pagination.py::test_cursor_signing_and_verification PASSED    [ 53%]
+tests/test_pagination.py::test_cursor_signing_and_verification ERROR     [ 53%]
+tests/test_pagination.py::test_tampered_cursor_rejected PASSED           [ 53%]
+tests/test_pagination.py::test_tampered_cursor_rejected ERROR            [ 53%]
+tests/test_pagination.py::test_invalid_cursor_rejected PASSED            [ 53%]
+tests/test_pagination.py::test_invalid_cursor_rejected ERROR             [ 53%]
+tests/test_pagination.py::test_etag_creation PASSED                      [ 54%]
+tests/test_pagination.py::test_etag_revision_extraction PASSED           [ 54%]
+tests/test_pagination.py::test_etag_revision_extraction_invalid PASSED   [ 54%]
+tests/test_pagination.py::test_check_if_match_success FAILED             [ 54%]
+tests/test_pagination.py::test_check_if_match_success ERROR              [ 54%]
+tests/test_pagination.py::test_check_if_match_mismatch FAILED            [ 55%]
+tests/test_pagination.py::test_check_if_match_mismatch ERROR             [ 55%]
+tests/test_pagination.py::test_check_if_match_missing FAILED             [ 55%]
+tests/test_pagination.py::test_check_if_match_missing ERROR              [ 55%]
+tests/test_pagination.py::test_concurrent_update_conflict FAILED         [ 55%]
+tests/test_pagination.py::test_concurrent_update_conflict ERROR          [ 55%]
+tests/test_pagination.py::test_concurrent_update_success FAILED          [ 55%]
+tests/test_pagination.py::test_concurrent_update_success ERROR           [ 55%]
+tests/test_pagination.py::test_pagination_limit_bounds PASSED            [ 56%]
+tests/test_path_containment.py::TestPathContainment::test_valid_relative_path PASSED [ 56%]
+tests/test_path_containment.py::TestPathContainment::test_valid_nested_path PASSED [ 56%]
+tests/test_path_containment.py::TestPathContainment::test_reject_parent_directory_escape PASSED [ 56%]
+tests/test_path_containment.py::TestPathContainment::test_reject_single_parent_reference PASSED [ 57%]
+tests/test_path_containment.py::TestPathContainment::test_reject_absolute_path PASSED [ 57%]
+tests/test_path_containment.py::TestPathContainment::test_reject_symlink_escaping PASSED [ 57%]
+tests/test_path_containment.py::TestPathContainment::test_valid_symlink_inside_root PASSED [ 57%]
+tests/test_path_containment.py::TestPathContainment::test_path_with_single_dot PASSED [ 58%]
+tests/test_path_containment.py::TestPathContainment::test_empty_path_resolves_to_root PASSED [ 58%]
+tests/test_path_containment.py::TestPathContainment::test_nonexistent_path_ok_if_contained PASSED [ 58%]
+tests/test_path_containment.py::TestUUIDGeneration::test_generate_uuid_name PASSED [ 58%]
+tests/test_path_containment.py::TestUUIDGeneration::test_uuid_names_are_unique PASSED [ 59%]
+tests/test_path_containment.py::TestUUIDGeneration::test_generate_uuid_path PASSED [ 59%]
+tests/test_path_containment.py::TestUUIDGeneration::test_uuid_paths_are_unique PASSED [ 59%]
+tests/test_path_containment.py::TestUUIDGeneration::test_uuid_path_names_only PASSED [ 59%]
+tests/test_path_containment.py::TestPathContainmentIntegration::test_real_project_structure PASSED [ 60%]
+tests/test_path_containment.py::TestPathContainmentIntegration::test_cannot_escape_via_crafted_path PASSED [ 60%]
+tests/test_permissions.py::TestPermissionsWindows::test_windows_permissions_function_exists PASSED [ 60%]
+tests/test_permissions.py::TestPermissionsWindows::test_windows_permissions_with_pywin32 PASSED [ 60%]
+tests/test_permissions.py::TestPermissionsWindows::test_windows_permissions_with_service_account PASSED [ 61%]
+tests/test_permissions.py::TestPermissionsWindows::test_windows_permissions_fallback_to_icacls PASSED [ 61%]
+tests/test_permissions.py::TestPermissionsWindows::test_windows_dacl_recursive_function_exists PASSED [ 61%]
+tests/test_permissions.py::TestPermissionsWindows::test_windows_icacls_fallback_function_exists PASSED [ 61%]
+tests/test_permissions.py::TestPermissionsPOSIX::test_posix_permissions_function_exists SKIPPED [ 62%]
+tests/test_permissions.py::TestPermissionsPOSIX::test_posix_apply_permissions_calls_posix_function SKIPPED [ 62%]
+tests/test_permissions.py::TestPermissionsPOSIX::test_apply_posix_permissions SKIPPED [ 62%]
+tests/test_permissions.py::TestPermissionsPOSIX::test_posix_permissions_restrict_group_and_others SKIPPED [ 62%]
+tests/test_permissions.py::TestPermissionsPOSIX::test_posix_nested_directories_recursive SKIPPED [ 63%]
+tests/test_permissions.py::TestPermissionsPOSIX::test_posix_symlink_skipped SKIPPED [ 63%]
+tests/test_permissions.py::TestPermissionsGeneral::test_apply_permissions_called_with_valid_path PASSED [ 63%]
+tests/test_permissions.py::TestPermissionsGeneral::test_apply_permissions_nonexistent_path FAILED [ 63%]
+tests/test_permissions.py::TestPermissionsGeneral::test_apply_permissions_on_dispatch PASSED [ 64%]
+tests/test_permissions.py::TestPermissionsGeneral::test_apply_permissions_with_service_account_dispatch PASSED [ 64%]
+tests/test_proxy_trust.py::TestProxyTrustConfiguration::test_proxyfix_disabled_without_trusted_proxies FAILED [ 64%]
+tests/test_proxy_trust.py::TestProxyTrustConfiguration::test_trusted_proxies_stored_in_config FAILED [ 64%]
+tests/test_proxy_trust.py::TestProxyTrustValidation::test_trusted_proxy_connection_allowed FAILED [ 65%]
+tests/test_proxy_trust.py::TestProxyTrustValidation::test_untrusted_proxy_connection_rejected FAILED [ 65%]
+tests/test_proxy_trust.py::TestProxyTrustValidation::test_host_allowlist_with_proxied_request FAILED [ 65%]
+tests/test_proxy_trust.py::TestProxyTrustValidation::test_forwarded_headers_from_trusted_proxy FAILED [ 65%]
+tests/test_proxy_trust.py::TestProxyTrustValidation::test_forwarded_headers_from_untrusted_peer FAILED [ 66%]
+tests/test_proxy_trust.py::TestProxyTrustWithoutConfiguration::test_no_proxy_trust_allows_direct_connections FAILED [ 66%]
+tests/test_proxy_trust.py::TestProxyTrustWithoutConfiguration::test_no_proxy_trust_ignores_forwarded_headers FAILED [ 66%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorBasic::test_detector_initialization PASSED [ 66%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorBasic::test_register_single_secret PASSED [ 66%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorBasic::test_register_multiple_secrets PASSED [ 67%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorBasic::test_create_detector_with_secrets PASSED [ 67%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_not_found PASSED [ 67%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_with_secret PASSED [ 67%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_without_secret PASSED [ 68%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_multiple_secrets PASSED [ 68%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_multiple_occurrences_same_line PASSED [ 68%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_empty_secret_ignored PASSED [ 68%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorFileScan::test_scan_file_binary_file_ignored PASSED [ 69%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorDirectoryScan::test_scan_directory_empty PASSED [ 69%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorDirectoryScan::test_scan_directory_with_secrets PASSED [ 69%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorDirectoryScan::test_scan_directory_with_pattern PASSED [ 69%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorDirectoryScan::test_scan_logs_helper PASSED [ 70%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorDirectoryScan::test_scan_json_files_helper PASSED [ 70%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorAssertions::test_assert_no_leaks_success PASSED [ 70%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorAssertions::test_assert_no_leaks_failure PASSED [ 70%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorAssertions::test_assert_no_leaks_multiple_locations PASSED [ 71%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorAssertions::test_assert_secret_found_success PASSED [ 71%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorAssertions::test_assert_secret_found_failure PASSED [ 71%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorRealWorldScenarios::test_scenario_api_key_leak_in_logs PASSED [ 71%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorRealWorldScenarios::test_scenario_password_leak_in_config PASSED [ 72%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorRealWorldScenarios::test_scenario_no_leaks_clean_run PASSED [ 72%]
+tests/test_secret_leak_detector.py::TestSecretLeakDetectorRealWorldScenarios::test_scenario_multiple_secrets_multiple_locations PASSED [ 72%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_ensure_keys_exist_creates_both_keys PASSED [ 72%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_master_key_is_256_bits PASSED [ 73%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_session_signing_key_is_512_bits PASSED [ 73%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_ensure_keys_exist_is_idempotent PASSED [ 73%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_get_master_key_raises_if_not_exists PASSED [ 73%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_get_session_signing_key_raises_if_not_exists PASSED [ 74%]
+tests/test_secrets.py::TestSecretManagerKeyGeneration::test_keys_are_randomly_generated PASSED [ 74%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_encrypt_returns_bytes PASSED [ 74%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_ciphertext_contains_key_id_and_nonce PASSED [ 74%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_encrypt_decrypt_roundtrip PASSED [ 75%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_decrypt_different_ciphertexts_for_same_plaintext PASSED [ 75%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_decrypt_invalid_ciphertext_raises PASSED [ 75%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_decrypt_tampered_ciphertext_raises PASSED [ 75%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_decrypt_without_master_key_raises PASSED [ 76%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_encrypt_binary_data PASSED [ 76%]
+tests/test_secrets.py::TestSecretManagerEncryption::test_encrypt_large_data PASSED [ 76%]
+tests/test_secrets.py::TestSecretManagerKeyRotation::test_rotate_session_signing_key_creates_new_key PASSED [ 76%]
+tests/test_secrets.py::TestSecretManagerKeyRotation::test_rotate_session_signing_key_returns_bytes PASSED [ 77%]
+tests/test_secrets.py::TestSecretManagerKeyRotation::test_rotate_session_signing_key_invalidates_sessions PASSED [ 77%]
+tests/test_secrets.py::TestSecretManagerPortability::test_decrypt_with_copied_key PASSED [ 77%]
+tests/test_secrets.py::TestSecretManagerPortability::test_restore_backup_on_different_machine PASSED [ 77%]
+tests/test_security.py::test_csp_header_present PASSED                   [ 78%]
+tests/test_security.py::test_csp_header_present ERROR                    [ 78%]
+tests/test_security.py::test_x_content_type_options_header PASSED        [ 78%]
+tests/test_security.py::test_x_content_type_options_header ERROR         [ 78%]
+tests/test_security.py::test_x_frame_options_header PASSED               [ 78%]
+tests/test_security.py::test_x_frame_options_header ERROR                [ 78%]
+tests/test_security.py::test_authenticated_response_not_cached PASSED    [ 78%]
+tests/test_security.py::test_authenticated_response_not_cached ERROR     [ 78%]
+tests/test_security.py::test_cross_site_post_rejected PASSED             [ 79%]
+tests/test_security.py::test_cross_site_post_rejected ERROR              [ 79%]
+tests/test_security.py::test_same_origin_post_allowed PASSED             [ 79%]
+tests/test_security.py::test_same_origin_post_allowed ERROR              [ 79%]
+tests/test_security.py::test_cross_origin_allowlist PASSED               [ 79%]
+tests/test_security.py::test_cross_origin_allowlist ERROR                [ 79%]
+tests/test_security.py::test_safe_redirect_relative_path PASSED          [ 79%]
+tests/test_security.py::test_safe_redirect_rejects_absolute_urls PASSED  [ 80%]
+tests/test_security.py::test_safe_redirect_uses_default PASSED           [ 80%]
+tests/test_security.py::test_query_string_tokens_ignored PASSED          [ 80%]
+tests/test_security.py::test_query_string_tokens_ignored ERROR           [ 80%]
+tests/test_security.py::test_referer_origin_fallback PASSED              [ 80%]
+tests/test_security.py::test_referer_origin_fallback ERROR               [ 80%]
+tests/test_security.py::test_missing_origin_unsafe_method_rejected PASSED [ 81%]
+tests/test_security.py::test_missing_origin_unsafe_method_rejected ERROR [ 81%]
+tests/test_security.py::test_get_requests_not_origin_checked PASSED      [ 81%]
+tests/test_security.py::test_get_requests_not_origin_checked ERROR       [ 81%]
+tests/test_security.py::test_safe_methods_no_origin_required PASSED      [ 81%]
+tests/test_security.py::test_safe_methods_no_origin_required ERROR       [ 81%]
+tests/test_serialization.py::test_serialize_uuid PASSED                  [ 81%]
+tests/test_serialization.py::test_serialize_datetime_utc PASSED          [ 82%]
+tests/test_serialization.py::test_parse_datetime_iso PASSED              [ 82%]
+tests/test_serialization.py::test_json_encoder_uuid PASSED               [ 82%]
+tests/test_serialization.py::test_json_encoder_uuid ERROR                [ 82%]
+tests/test_serialization.py::test_json_encoder_datetime PASSED           [ 82%]
+tests/test_serialization.py::test_json_encoder_datetime ERROR            [ 82%]
+tests/test_serialization.py::test_payload_too_large_handler_invoked PASSED [ 83%]
+tests/test_serialization.py::test_payload_too_large_handler_invoked ERROR [ 83%]
+tests/test_serialization.py::test_uuid_in_response PASSED                [ 83%]
+tests/test_serialization.py::test_uuid_in_response ERROR                 [ 83%]
+tests/test_serialization.py::test_datetime_in_response PASSED            [ 83%]
+tests/test_serialization.py::test_datetime_in_response ERROR             [ 83%]
+tests/test_serialization.py::test_unknown_api_path_returns_json_404 PASSED [ 83%]
+tests/test_serialization.py::test_unknown_api_path_returns_json_404 ERROR [ 83%]
+tests/test_serve_command.py::TestServeCommand::test_serve_requires_mode FAILED [ 83%]
+tests/test_serve_command.py::TestServeCommand::test_serve_default_port_5080 FAILED [ 84%]
+tests/test_serve_command.py::TestServeCommand::test_serve_custom_port FAILED [ 84%]
+tests/test_serve_command.py::TestServeCommand::test_serve_server_mode FAILED [ 84%]
+tests/test_serve_command.py::TestServeCommand::test_serve_workstation_mode FAILED [ 84%]
+tests/test_serve_command.py::TestServeCommand::test_serve_refuses_debug_mode FAILED [ 85%]
+tests/test_serve_command.py::TestServeCommand::test_serve_binds_to_loopback FAILED [ 85%]
+tests/test_serve_command.py::TestServeCommand::test_serve_requires_data_root_to_exist PASSED [ 85%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_app_config_includes_data_root FAILED [ 85%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_readiness_check_with_configured_data_root FAILED [ 86%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_readiness_check_fails_without_data_root PASSED [ 86%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_host_allowlist_rejects_unknown_host FAILED [ 86%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_host_allowlist_allows_configured_host FAILED [ 86%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_cors_origins_configured FAILED [ 87%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_trusted_proxies_configured FAILED [ 87%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_env_config_loads_from_environment PASSED [ 87%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_config_to_dict PASSED [ 87%]
+tests/test_serve_configuration.py::TestServeConfiguration::test_serve_startup_path_regression FAILED [ 88%]
+tests/test_server_config.py::TestServerConfiguration::test_create_app_with_explicit_config FAILED [ 88%]
+tests/test_server_config.py::TestServerConfiguration::test_health_ready_without_initialization FAILED [ 88%]
+tests/test_server_config.py::TestServerConfiguration::test_health_ready_with_config_missing_data_root PASSED [ 88%]
+tests/test_server_config.py::TestServerConfiguration::test_health_live_always_returns_200 PASSED [ 89%]
+tests/test_server_config.py::TestServerConfiguration::test_config_load_from_env_without_mode_has_no_default PASSED [ 89%]
+tests/test_server_config.py::TestServerConfiguration::test_config_to_dict_includes_all_keys PASSED [ 89%]
+tests/test_server_config.py::TestServerConfiguration::test_config_to_dict_does_not_include_process_names PASSED [ 89%]
+tests/test_status_command.py::TestStatusCommand::test_status_with_healthy_data_root PASSED [ 90%]
+tests/test_status_command.py::TestStatusCommand::test_status_with_uninitialized_data_root PASSED [ 90%]
+tests/test_status_command.py::TestStatusCommand::test_status_output_contains_checks PASSED [ 90%]
+tests/test_status_command.py::TestStatusCommand::test_status_with_missing_data_root PASSED [ 90%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_healthy_returns_dict PASSED [ 91%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_healthy_data_root PASSED [ 91%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_checks_data_root PASSED [ 91%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_checks_initialization PASSED [ 91%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_checks_catalogue PASSED [ 92%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_checks_disk_space PASSED [ 92%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_uninitialized_root_fails PASSED [ 92%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_missing_catalogue_fails PASSED [ 92%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_missing_root_fails PASSED [ 93%]
+tests/test_status_command.py::TestStatusChecking::test_check_status_empty_database_fails PASSED [ 93%]
+tests/test_status_command.py::TestStatusChecking::test_status_command_uses_default_data_root PASSED [ 93%]
+tests/test_vendor.py::test_vendor_lock_file_exists PASSED                [ 93%]
+tests/test_vendor.py::test_vendor_lock_has_required_packages PASSED      [ 94%]
+tests/test_vendor.py::test_vendor_lock_structure PASSED                  [ 94%]
+tests/test_vendor.py::test_fetch_vendor_script_exists PASSED             [ 94%]
+tests/test_vendor.py::test_fetch_vendor_verify_mode PASSED               [ 94%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_configured_secret_reports_true PASSED [ 95%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_not_configured_secret_reports_false PASSED [ 95%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_with_value_stores_value_internally PASSED [ 95%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_to_dict_returns_only_configured_status PASSED [ 95%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_to_dict_false_configured PASSED [ 96%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_repr_never_leaks_value PASSED [ 96%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_constructor_direct PASSED [ 96%]
+tests/test_write_only_secret.py::TestWriteOnlySecret::test_constructor_no_value PASSED [ 96%]
+tests/test_write_only_secret.py::TestWriteOnlySecretResponse::test_configured_returns_true PASSED [ 97%]
+tests/test_write_only_secret.py::TestWriteOnlySecretResponse::test_not_configured_returns_false PASSED [ 97%]
+tests/test_write_only_secret.py::TestWriteOnlySecretResponse::test_response_never_includes_secret_value PASSED [ 97%]
+tests/test_write_only_secret.py::TestWriteOnlySecretResponse::test_response_with_truthy_value PASSED [ 97%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_with_explicit_new_secret PASSED [ 98%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_omitting_secret_keeps_stored PASSED [ 98%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_with_none_secret_keeps_stored PASSED [ 98%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_multiple_secret_fields PASSED [ 98%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_non_secret_fields_updated PASSED [ 99%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_empty_update PASSED [ 99%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_does_not_modify_original_stored_data PASSED [ 99%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_active_directory_credentials PASSED [ 99%]
+tests/test_write_only_secret.py::TestMergeWriteOnlyFields::test_merge_openAlex_api_key_rotation PASSED [100%]
+
+=================================== ERRORS ====================================
+_________________ ERROR at teardown of test_api_error_to_dict _________________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpuqhtz62f\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpuqhtz62f\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+3AAA6O3ZJG2NGTZXW5QDETONE3VG6B52YAC5CFM5NSDWLKPLANMA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpuqhtz62f\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_api_error_with_details _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvdetht46\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvdetht46\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+A3N5HXAR3XUZL37P4HAKC6FRYYC7E67XFZSPKLBYNZEY7VHO5M2A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpvdetht46\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________ ERROR at teardown of test_unexpected_exception_returns_500 __________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp2lnqkj49\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp2lnqkj49\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+X5KNA2LZDQ6VCCX5HFZE7JSMEFNVI6QO3DK3UZI4F5GS23YAHHXA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp2lnqkj49\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_______ ERROR at teardown of test_x_request_id_header_on_all_responses ________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4b4ir27s\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4b4ir27s\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+5VT6UU57BHFZUYSKC4OGWNNKX24IW6HUNEXPO6TUU4CUR7SPRCSA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp4b4ir27s\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+__________ ERROR at teardown of test_x_request_id_on_error_response ___________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3x3o_44e\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3x3o_44e\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+2D7A2JDJS32XM6G3ABLIPESKDBUHJEZEKNU2UHM4JT7IKCU4VNUA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp3x3o_44e\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________________ ERROR at teardown of test_api_error_handler _________________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpp423anpw\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpp423anpw\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+EOMLJTJBYYLFTWYRR5HBIQLBN3P477YHZQYA7XTBVFHX2DBCDMIA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpp423anpw\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_request_id_persistence _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpc_4aldaa\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpc_4aldaa\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+WYM2RPUHMXUPMB5JLUW6WABKH7IJ76ZZLPV3W6ELUDLMLWZCHSEA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpc_4aldaa\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+__ ERROR at teardown of TestHealthLiveEndpoint.test_live_always_returns_200 ___
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpmf8vyeqw\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpmf8vyeqw\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+GQ7M4OC46FS42IXJGUDDTFTBP7G425MIU222AFCJWZ7EUGLOHPSQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpmf8vyeqw\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_____ ERROR at teardown of TestHealthLiveEndpoint.test_live_returns_json ______
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpgt2r32xi\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpgt2r32xi\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+T3PGI4RAEK6VY7CWBVUXHPGWN4L4BN3VHCIM3GZABNCD7ZBOGTPQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpgt2r32xi\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+___ ERROR at teardown of TestHealthLiveEndpoint.test_live_has_status_field ____
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpei1knth2\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpei1knth2\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+KDMSPETNES4BVNCU3IGIXVDK7XOIYYZI3ZS4N5C63VI7TGIEZ24A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpei1knth2\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_ ERROR at teardown of TestHealthLiveEndpoint.test_live_with_broken_data_root _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6rndz_1u\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6rndz_1u\\catalog.sqlite'
+_ ERROR at teardown of TestHealthReadyEndpoint.test_ready_with_healthy_data_root _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp00ga4tlz\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp00ga4tlz\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+KZTUCOV27RHMQWTJ7SVFWUZQUSWEWUGTRQG3DP6GGVPCMFBYYMFA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp00ga4tlz\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+____ ERROR at teardown of TestHealthReadyEndpoint.test_ready_returns_json _____
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptl218fu4\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptl218fu4\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+6IAYU24L747FKDSGDQX2TFRHUDVP5VTMRG7WVJQYRC4RRAQE5BCA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmptl218fu4\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+__ ERROR at teardown of TestHealthReadyEndpoint.test_ready_has_checks_field ___
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmphxee70rd\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmphxee70rd\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+SPF57HUITQA3CZM2W77QYC7XPGQAXPCNK5Y7CAFTES4P3F3WWFYQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmphxee70rd\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_ ERROR at teardown of TestHealthReadyEndpoint.test_ready_with_missing_catalogue _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dd568nn\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dd568nn\\catalog.sqlite'
+_ ERROR at teardown of TestHealthReadyEndpoint.test_ready_response_structure_success _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpzb32d75n\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpzb32d75n\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+EWAL7RUUKRM64DBKUZFI3FTC2W5QHSNZTOKRQA2FJO2C26JMN67A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpzb32d75n\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_ ERROR at teardown of TestHealthEndpointIntegration.test_both_endpoints_accessible _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpeforg5ld\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpeforg5ld\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+ICGQSUAG7PVSBIAIYOULFCN3DHP4IKFI5QEJGVQ4FYYPLE2Y6XRA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpeforg5ld\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_ ERROR at teardown of TestHealthEndpointIntegration.test_endpoints_use_correct_methods _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpay56pzav\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpay56pzav\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+BAGL6HXCMMLKP2PDOY7CBJCH6SWDSNED27T4RMV33XFAM62JO2KA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpay56pzav\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_ ERROR at teardown of TestHealthEndpointIntegration.test_ready_distinguishes_schema_from_connectivity _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpn4vgvb9l\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpn4vgvb9l\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+VAEJ4GUX4ORPRMMRCTOO6ZMLMODB7TUUSZBLVTHCHBOGJIJKYL5Q
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpn4vgvb9l\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_ ERROR at teardown of TestHealthEndpointIntegration.test_live_endpoint_has_no_side_effects _
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp05i7i0yr\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp05i7i0yr\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+6PXJQRJECKFNENQUV4C3LHNOQGNX5MJBU5X4R54JB5HB2SFMBH6Q
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp05i7i0yr\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+__________ ERROR at teardown of test_cursor_signing_and_verification __________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpk_250iwd\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpk_250iwd\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+6SSMZMMM7Y6YQQGUFH77BWOIGEDFCRR3KYXHPUYYKA3JOHAF46UA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpk_250iwd\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_____________ ERROR at teardown of test_tampered_cursor_rejected ______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpr4l3uu94\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpr4l3uu94\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+TOH2GSUHMIAHAUZHVGSXH4RJU2WADLHXAX743T47ERU6ZPQRO2HQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpr4l3uu94\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_invalid_cursor_rejected ______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpemb0pawp\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpemb0pawp\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+RSQ4L3Z3DRGUXWKZ6NQX6SLZGK6PRPC5CTNTR26CY46CV7ILCWZA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpemb0pawp\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_check_if_match_success _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp0lcrx86f\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp0lcrx86f\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+FBJN34NLJ2MZASIHPQPAWFW3UMLFOSHBZ6O4MCRCCVC6EEXV2RHQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp0lcrx86f\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_check_if_match_mismatch ______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpg8vt8s21\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpg8vt8s21\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+XTW4CRUIZKFHKI62WPD3LUMOX77TZ63MHYCWFIMEUXJQC2TJJNFA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpg8vt8s21\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_check_if_match_missing _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6c4n4jq7\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6c4n4jq7\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+WHZBLNXKCUMPIL32Z6CIVMSHPYYAT6KT4B6U37TRVQB2VDMY4VBA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp6c4n4jq7\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+____________ ERROR at teardown of test_concurrent_update_conflict _____________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp2wflfsqu\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp2wflfsqu\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+CEMU5XHR7I4KMY3KMSIX4XMJCHJUQJMV6UGHMSHPASESNBRMCOQQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp2wflfsqu\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_____________ ERROR at teardown of test_concurrent_update_success _____________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5d3g3hiy\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5d3g3hiy\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+RWG24YPGUZFBFDLICYM3Q6PYISC7HF73HTVIKPM4V7UBDCTSHLWA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp5d3g3hiy\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+________________ ERROR at teardown of test_csp_header_present _________________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpx2ewr6_n\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpx2ewr6_n\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+EJFNEJ2OWIS2ZNTLHW3YD33G3RRW3CTFCR4QLHIBUW4BVBLQRKIQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpx2ewr6_n\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+___________ ERROR at teardown of test_x_content_type_options_header ___________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpev_lwpal\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpev_lwpal\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+MPGZ6MR4ETMDFJMJG3RZBFEAUP4XSQ64LEBOFTK7AGDRMNGKXM7A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpev_lwpal\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_x_frame_options_header _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpwsd1neeu\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpwsd1neeu\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+GHUEC5B2F3SIBPPXMU5WGQMYGSMQIR7UWFR6ZUPST7UQ3MNC4JTQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpwsd1neeu\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________ ERROR at teardown of test_authenticated_response_not_cached _________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvjiw1ci5\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvjiw1ci5\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+VI3WXK3FVEXUBFGI4YCMQTW53U5BZXMWLKF7WBYYQBAGUZWEEWZA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpvjiw1ci5\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_____________ ERROR at teardown of test_cross_site_post_rejected ______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpy286lp0p\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpy286lp0p\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+KNFDGANNNAKZMA62A4AAVLRNU2SFSBMS33OAEH2BCFPVFRG73WBQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpy286lp0p\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_____________ ERROR at teardown of test_same_origin_post_allowed ______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp11c11st2\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp11c11st2\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+3CEFGWCBCCOPRDTACYTAVWGO47AETBN6GESX3N6L6KLFVED5X3EA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp11c11st2\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_cross_origin_allowlist _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3f_46xk1\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3f_46xk1\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+MS2E2MNKU5UGSJ5EBUZIWUJPC6JJELPILTRCARQASYP3I5SC25DA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp3f_46xk1\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+____________ ERROR at teardown of test_query_string_tokens_ignored ____________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpg640se_3\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpg640se_3\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+JNUHBK6CDPE5DZ5H5DKR4MZCP7RP6KGZXPHW4M77SW2WRTRBRLTQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpg640se_3\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+______________ ERROR at teardown of test_referer_origin_fallback ______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp0bczekkr\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp0bczekkr\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+VUJCIHCP2PQE3WOQ2HHNYEKZY3NF4BLEOES734NOTQXO5B3JVSJA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp0bczekkr\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_______ ERROR at teardown of test_missing_origin_unsafe_method_rejected _______
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpeqlvg34v\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpeqlvg34v\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+QUWTB7WRXZQAQT4LYOVBOMUZI4G5ZXCZFUG4JKWJPZB63HWXFJRA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpeqlvg34v\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+__________ ERROR at teardown of test_get_requests_not_origin_checked __________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpwdrme3ni\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpwdrme3ni\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+EBV6VV2KRK5M7HHKRXUIF4YTPDODVQUPECOECZRDLFIKBC6YZ2AA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpwdrme3ni\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+__________ ERROR at teardown of test_safe_methods_no_origin_required __________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3ik_5q_m\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3ik_5q_m\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+34DL3IAJPG6L4ZSVTBORAPWGNB5ATDMJHZHUQZHHRVL4XGP53X4A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp3ik_5q_m\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________________ ERROR at teardown of test_json_encoder_uuid _________________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpewd7499m\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpewd7499m\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+M4T6FU7BBX44JQMBT3DLFM7YSD354Q3D5RSRVTLWRQPVDYKYYGGQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpewd7499m\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_______________ ERROR at teardown of test_json_encoder_datetime _______________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp86oxgd9q\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp86oxgd9q\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+NGK7OIS6F5TU32YFBN6AWOOF7L5J5DXMJAG3O7OLE4PTWZZ5EO3A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp86oxgd9q\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________ ERROR at teardown of test_payload_too_large_handler_invoked _________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpexnvb3cj\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpexnvb3cj\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+FVYYPS4GOJOCCDODKWK2OZTQS44IPQXKR7TSNHGEM5ZCWR44OVVQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpexnvb3cj\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________________ ERROR at teardown of test_uuid_in_response __________________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvctzs4e6\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvctzs4e6\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+EIIJX2XYAUEFFSEHQJM2RA3UW7I32RGANOPY2WD4MTNHDUNKKW7A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpvctzs4e6\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_______________ ERROR at teardown of test_datetime_in_response ________________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvsp4jp14\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvsp4jp14\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+XAE7O7PQX52VPG6GQIJHN6J254UMNFTPLIEPZGKSOWL7P2LUI4KA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpvsp4jp14\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+_________ ERROR at teardown of test_unknown_api_path_returns_json_404 _________
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpn5pnl5vx\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpn5pnl5vx\\catalog.sqlite'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+4YC7VHTQ6M2ER6EX3AZIABTSXD5BPL65KIKHNQYQRASXZVSGWGPQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpn5pnl5vx\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+================================== FAILURES ===================================
+E   FileNotFoundError: [WinError 2] The system cannot find the file specified
+C:\Python314\Lib\subprocess.py:1553: FileNotFoundError: [WinError 2] The system cannot find the file specified
+E   FileNotFoundError: [WinError 2] The system cannot find the file specified
+C:\Python314\Lib\subprocess.py:1553: FileNotFoundError: [WinError 2] The system cannot find the file specified
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5mkj5pvr\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5mkj5pvr\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+W52EVCJMYPYMT3RN6Q5SBCO6ZRLNPFYKPNJU26GQ4BSEXR3VBHHQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp5mkj5pvr\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5mkj5pvr\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp21yzm73k\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp21yzm73k\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+DVKZVFIOSMVKK75ERJZTOVCM7FVY562PS3KINU6G5BUF6ATXM3JA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp21yzm73k\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp21yzm73k\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6b1mcbby\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6b1mcbby\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+53NG4BGIDMZEX5LTAMNLSC74DKNPMWN6LAH6WDPDZBWU5YYMH77Q
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp6b1mcbby\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6b1mcbby\\catalog.sqlite'
+E   assert 403 == 405
+     +  where 403 = <WrapperTestResponse streamed [403 FORBIDDEN]>.status_code
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+BAGL6HXCMMLKP2PDOY7CBJCH6SWDSNED27T4RMV33XFAM62JO2KA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpay56pzav\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Users\williams\git\litfoundry\tests\test_health_endpoints.py:185: assert 403 == 405
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpispdslc1\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpispdslc1\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpispdslc1\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4t3o383g\\new_root\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4t3o383g\\new_root\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+BKPGQZAO7KKXXOBOUUCVWJBXUK7KXYTWKM6H6DNCDH2FY67WH3YA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp4t3o383g\new_root\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4t3o383g\\new_root\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfd41vexm\\new_root\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfd41vexm\\new_root\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+QENC5TTG7ZOX2DDWFVFB7MM7DRDWGTKXV3SUOETENHJZJCDKXZFQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpfd41vexm\new_root\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfd41vexm\\new_root\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpacmey3bj\\root\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpacmey3bj\\root\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+KV2GWFGJNF7IWCHBMBFI5QVAHZDASHIZ46AJWBBQX37246QNLWSA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpacmey3bj\root\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpacmey3bj\\root\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxou0_krh\\root\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxou0_krh\\root\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+KYXL3RT7BF4KUDFWELETANFILHPIVFFLWBHHG7VV23RFTFPLY52Q
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpxou0_krh\root\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxou0_krh\\root\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpqg708ukp\\real_permissions\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpqg708ukp\\real_permissions\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+YULETYDPWVM5Y5SKT3TXDZZFOHAD3IPVNSA333VUB7MOKLOLMQCA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpqg708ukp\real_permissions\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpqg708ukp\\real_permissions\\catalog.sqlite'
+E   FileNotFoundError: [WinError 2] The system cannot find the file specified
+C:\Python314\Lib\subprocess.py:1553: FileNotFoundError: [WinError 2] The system cannot find the file specified
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplqe3bzdt\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplqe3bzdt\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+P36HVCODTYJGEZ46SJ4CCG6K2J47O52DELZ6Q6CKJNQLNVA7BDRQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmplqe3bzdt\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplqe3bzdt\\catalog.sqlite'
+E   KeyError: 'match'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+FBJN34NLJ2MZASIHPQPAWFW3UMLFOSHBZ6O4MCRCCVC6EEXV2RHQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp0lcrx86f\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Users\williams\git\litfoundry\tests\test_pagination.py:118: KeyError: 'match'
+E   KeyError: 'match'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+XTW4CRUIZKFHKI62WPD3LUMOX77TZ63MHYCWFIMEUXJQC2TJJNFA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpg8vt8s21\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Users\williams\git\litfoundry\tests\test_pagination.py:129: KeyError: 'match'
+E   KeyError: 'match'
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+WHZBLNXKCUMPIL32Z6CIVMSHPYYAT6KT4B6U37TRVQB2VDMY4VBA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp6c4n4jq7\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Users\williams\git\litfoundry\tests\test_pagination.py:140: KeyError: 'match'
+E   assert 403 == 409
+     +  where 403 = <WrapperTestResponse streamed [403 FORBIDDEN]>.status_code
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+CEMU5XHR7I4KMY3KMSIX4XMJCHJUQJMV6UGHMSHPASESNBRMCOQQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp2wflfsqu\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Users\williams\git\litfoundry\tests\test_pagination.py:155: assert 403 == 409
+E   assert 403 == 200
+     +  where 403 = <WrapperTestResponse streamed [403 FORBIDDEN]>.status_code
+---------------------------- Captured stdout setup ----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+RWG24YPGUZFBFDLICYM3Q6PYISC7HF73HTVIKPM4V7UBDCTSHLWA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp5d3g3hiy\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Users\williams\git\litfoundry\tests\test_pagination.py:171: assert 403 == 200
+E   Failed: DID NOT RAISE any of (OSError, Exception)
+C:\Users\williams\git\litfoundry\tests\test_permissions.py:214: Failed: DID NOT RAISE any of (OSError, Exception)
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpap5409br\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpap5409br\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+A3SPBMCQQ7C2A7HZUOK4BTBKS64AF33MRUVBGLXHGVJYZK5MKQUA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpap5409br\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpap5409br\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpf905glq5\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpf905glq5\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+PSCR2OU2QOYYPNUW4KPN7AICGKHQF6UYA4WIF3BOPG7YF3KMIJPA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpf905glq5\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpf905glq5\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpu6nneuib\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpu6nneuib\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+PGKIEWTS2VGOBGVTAIRBLWWDQVAZNSE3X233YITEHUHEVNVWZYJA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpu6nneuib\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpu6nneuib\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvru6s0f9\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvru6s0f9\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+AYV35MCJAMS7XL3EQCUQM467BT7KRW4AD76RCIVKF3T3RV3IJJHA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpvru6s0f9\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvru6s0f9\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp_ilpeb6k\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp_ilpeb6k\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+IZMASK3OG6IHHJHFYTRRBVYTU5KCSCKAJC2AYU255ADG3DOGPWBQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp_ilpeb6k\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp_ilpeb6k\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprvan9ooc\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprvan9ooc\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+JXY5U3NK7C35MRDPDKM42T4MQNZZRZVIDCJCCXJ2RGXY2KSC5HQQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmprvan9ooc\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprvan9ooc\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp36rk558n\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp36rk558n\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+SWUC3HFE66PEGBE3LUYWRV6OVIUG5SP2LB4MWQZDG5DAKXK2ERZQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmp36rk558n\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp36rk558n\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpstg53_dv\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpstg53_dv\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+FIQCXSC5SYZRKYPIH6INMN5XXCWXINDEQFMUUADBWF3TOJI4JLNA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpstg53_dv\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpstg53_dv\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfbc0_giz\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfbc0_giz\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+MM3XJR7FQ5YOAM4TVFULPOGJHRGTEHZ4HA4S4IMSFUTRY2HJJC6A
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpfbc0_giz\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfbc0_giz\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp7obpu107\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp7obpu107\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp7obpu107\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplf5ztz_d\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplf5ztz_d\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplf5ztz_d\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvvxoxikt\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvvxoxikt\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvvxoxikt\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpkcvcu1zc\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpkcvcu1zc\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpkcvcu1zc\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dfz8bzd\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dfz8bzd\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dfz8bzd\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5wgo5nk9\\logs\\litfoundry.log'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5wgo5nk9\\logs\\litfoundry.log'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5wgo5nk9\\logs\\litfoundry.log'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp16jxyr5l\\logs\\litfoundry.log'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp16jxyr5l\\logs\\litfoundry.log'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp16jxyr5l\\logs\\litfoundry.log'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxdvgilfs\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxdvgilfs\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+NLXR3Z25GCKWC5CSUJZQRI6LUTLJQ2P6IF27VUUMOH6W627A2EKQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpxdvgilfs\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxdvgilfs\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprka61gzd\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprka61gzd\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+275ZWX2HMIPZSXGJVLS35VHIVVB3PTMMYMNQA37VPFOAPOGFR4KA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmprka61gzd\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprka61gzd\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmph_0q9wue\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmph_0q9wue\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+CPQYKSLWMZHHI3D3UKBYJOSAEYFRB3E4AOTOUUKM5LQTPFTNEPFQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmph_0q9wue\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmph_0q9wue\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxnujc4uo\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxnujc4uo\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+TS7PZDDSPUGHG4A56OCJBSUMK5PUY6UBA3JXQNSVVTAIZ4ZPYRIA
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpxnujc4uo\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxnujc4uo\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptd28s2qu\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptd28s2qu\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+RLTU5QN2ZYIOFVJB55TORPSRHNCJNCOWBYXEYFLT5JS5WKRYRE6Q
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmptd28s2qu\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptd28s2qu\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcwbijnxv\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcwbijnxv\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+DPKRGSP5ZGLJ3YXET7RAJFID77K7BU6B2DBGYPDMKHGPQ5TNBXIQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpcwbijnxv\bootstrap-token.txt
+Use this token to complete setup at: /setup
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcwbijnxv\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpodixpfbp\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpodixpfbp\\catalog.sqlite'
+---------------------------- Captured stdout call -----------------------------
+
+============================================================
+Bootstrap Token (valid for 30 minutes):
+O6ZXUK5FLJR2V6LJ3DKN7T5UYZNNQAT42455T7RMTYW6QLVC7YZQ
+============================================================
+
+Token saved to: C:\Users\williams\AppData\Local\Temp\tmpodixpfbp\bootstrap-token.txt
+Use this token to complete setup at: /setup
+Starting LitFoundry server in workstation mode on 127.0.0.1:5080
+Data root: C:\Users\williams\AppData\Local\Temp\tmpodixpfbp
+Allowed hosts: localhost,127.0.0.1
+Workstation mode: accessible only on localhost
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 001_baseline -> 002_identity_schema, Add identity schema tables for local authentication.
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpodixpfbp\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpoxnmwce1\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpoxnmwce1\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpoxnmwce1\\catalog.sqlite'
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcejqhe5b\\catalog.sqlite'
+
+During handling of the above exception, another exception occurred:
+E   PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcejqhe5b\\catalog.sqlite'
+C:\Python314\Lib\tempfile.py:931: PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcejqhe5b\\catalog.sqlite'
+============================== warnings summary ===============================
+..\..\AppData\Roaming\Python\Python314\site-packages\anyio\pytest_plugin.py:14
+  C:\Users\williams\AppData\Roaming\Python\Python314\site-packages\anyio\pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+tests/test_catalog_engine.py::TestCatalogueEngine::test_catalog_engine_persistence
+  C:\Users\williams\git\litfoundry\tests\test_catalog_engine.py:125: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    {"now": datetime.utcnow()}
+
+tests/test_catalog_engine.py::TestCatalogueEngine::test_catalog_engine_persistence
+  C:\Users\williams\AppData\Roaming\Python\Python314\site-packages\sqlalchemy\engine\default.py:1192: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor.execute(statement, parameters)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_cli.py::TestCLI::test_version - FileNotFoundError: [WinError 2] The system cannot find the file specified
+FAILED tests/test_cli.py::TestCLI::test_help - FileNotFoundError: [WinError 2] The system cannot find the file specified
+FAILED tests/test_cli_serve.py::TestServeCLI::test_serve_mode_options_valid - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5mkj5pvr\\catalog.sqlite'
+FAILED tests/test_cli_serve.py::TestServeCLI::test_serve_mode_from_env_var - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp21yzm73k\\catalog.sqlite'
+FAILED tests/test_cli_serve.py::TestServeCLI::test_serve_cli_arg_overrides_env_var - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6b1mcbby\\catalog.sqlite'
+FAILED tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_endpoints_use_correct_methods - assert 403 == 405
+ +  where 403 = <WrapperTestResponse streamed [403 FORBIDDEN]>.status_code
+FAILED tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_ready_with_empty_database - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpispdslc1\\catalog.sqlite'
+FAILED tests/test_initialization.py::TestDataRootInitialization::test_init_creates_all_required_directories - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4t3o383g\\new_root\\catalog.sqlite'
+FAILED tests/test_initialization.py::TestDataRootInitialization::test_init_fresh_root - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfd41vexm\\new_root\\catalog.sqlite'
+FAILED tests/test_initialization.py::TestDataRootInitialization::test_init_idempotent - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpacmey3bj\\root\\catalog.sqlite'
+FAILED tests/test_initialization.py::TestDataRootInitialization::test_reinitialize_data_root - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxou0_krh\\root\\catalog.sqlite'
+FAILED tests/test_initialization.py::TestDataRootInitialization::test_init_with_real_permissions - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpqg708ukp\\real_permissions\\catalog.sqlite'
+FAILED tests/test_naming_compliance.py::TestNamingCompliance::test_cli_entry_point - FileNotFoundError: [WinError 2] The system cannot find the file specified
+FAILED tests/test_openapi_contract.py::test_openapi_document_contract - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplqe3bzdt\\catalog.sqlite'
+FAILED tests/test_pagination.py::test_check_if_match_success - KeyError: 'match'
+FAILED tests/test_pagination.py::test_check_if_match_mismatch - KeyError: 'match'
+FAILED tests/test_pagination.py::test_check_if_match_missing - KeyError: 'match'
+FAILED tests/test_pagination.py::test_concurrent_update_conflict - assert 403 == 409
+ +  where 403 = <WrapperTestResponse streamed [403 FORBIDDEN]>.status_code
+FAILED tests/test_pagination.py::test_concurrent_update_success - assert 403 == 200
+ +  where 403 = <WrapperTestResponse streamed [403 FORBIDDEN]>.status_code
+FAILED tests/test_permissions.py::TestPermissionsGeneral::test_apply_permissions_nonexistent_path - Failed: DID NOT RAISE any of (OSError, Exception)
+FAILED tests/test_proxy_trust.py::TestProxyTrustConfiguration::test_proxyfix_disabled_without_trusted_proxies - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpap5409br\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustConfiguration::test_trusted_proxies_stored_in_config - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpf905glq5\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustValidation::test_trusted_proxy_connection_allowed - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpu6nneuib\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustValidation::test_untrusted_proxy_connection_rejected - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvru6s0f9\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustValidation::test_host_allowlist_with_proxied_request - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp_ilpeb6k\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustValidation::test_forwarded_headers_from_trusted_proxy - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprvan9ooc\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustValidation::test_forwarded_headers_from_untrusted_peer - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp36rk558n\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustWithoutConfiguration::test_no_proxy_trust_allows_direct_connections - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpstg53_dv\\catalog.sqlite'
+FAILED tests/test_proxy_trust.py::TestProxyTrustWithoutConfiguration::test_no_proxy_trust_ignores_forwarded_headers - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpfbc0_giz\\catalog.sqlite'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_requires_mode - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp7obpu107\\catalog.sqlite'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_default_port_5080 - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmplf5ztz_d\\catalog.sqlite'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_custom_port - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvvxoxikt\\catalog.sqlite'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_server_mode - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpkcvcu1zc\\catalog.sqlite'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_workstation_mode - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dfz8bzd\\catalog.sqlite'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_refuses_debug_mode - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5wgo5nk9\\logs\\litfoundry.log'
+FAILED tests/test_serve_command.py::TestServeCommand::test_serve_binds_to_loopback - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp16jxyr5l\\logs\\litfoundry.log'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_app_config_includes_data_root - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxdvgilfs\\catalog.sqlite'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_readiness_check_with_configured_data_root - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmprka61gzd\\catalog.sqlite'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_host_allowlist_rejects_unknown_host - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmph_0q9wue\\catalog.sqlite'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_host_allowlist_allows_configured_host - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpxnujc4uo\\catalog.sqlite'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_cors_origins_configured - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptd28s2qu\\catalog.sqlite'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_trusted_proxies_configured - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcwbijnxv\\catalog.sqlite'
+FAILED tests/test_serve_configuration.py::TestServeConfiguration::test_serve_startup_path_regression - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpodixpfbp\\catalog.sqlite'
+FAILED tests/test_server_config.py::TestServerConfiguration::test_create_app_with_explicit_config - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpoxnmwce1\\catalog.sqlite'
+FAILED tests/test_server_config.py::TestServerConfiguration::test_health_ready_without_initialization - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpcejqhe5b\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_api_error_to_dict - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpuqhtz62f\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_api_error_with_details - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvdetht46\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_unexpected_exception_returns_500 - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp2lnqkj49\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_x_request_id_header_on_all_responses - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp4b4ir27s\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_x_request_id_on_error_response - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3x3o_44e\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_api_error_handler - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpp423anpw\\catalog.sqlite'
+ERROR tests/test_api_errors.py::test_request_id_persistence - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpc_4aldaa\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_always_returns_200 - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpmf8vyeqw\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_returns_json - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpgt2r32xi\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_has_status_field - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpei1knth2\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthLiveEndpoint::test_live_with_broken_data_root - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6rndz_1u\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_healthy_data_root - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp00ga4tlz\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_returns_json - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmptl218fu4\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_has_checks_field - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmphxee70rd\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_with_missing_catalogue - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp1dd568nn\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthReadyEndpoint::test_ready_response_structure_success - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpzb32d75n\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_both_endpoints_accessible - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpeforg5ld\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_endpoints_use_correct_methods - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpay56pzav\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_ready_distinguishes_schema_from_connectivity - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpn4vgvb9l\\catalog.sqlite'
+ERROR tests/test_health_endpoints.py::TestHealthEndpointIntegration::test_live_endpoint_has_no_side_effects - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp05i7i0yr\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_cursor_signing_and_verification - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpk_250iwd\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_tampered_cursor_rejected - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpr4l3uu94\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_invalid_cursor_rejected - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpemb0pawp\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_check_if_match_success - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp0lcrx86f\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_check_if_match_mismatch - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpg8vt8s21\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_check_if_match_missing - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp6c4n4jq7\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_concurrent_update_conflict - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp2wflfsqu\\catalog.sqlite'
+ERROR tests/test_pagination.py::test_concurrent_update_success - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp5d3g3hiy\\catalog.sqlite'
+ERROR tests/test_security.py::test_csp_header_present - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpx2ewr6_n\\catalog.sqlite'
+ERROR tests/test_security.py::test_x_content_type_options_header - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpev_lwpal\\catalog.sqlite'
+ERROR tests/test_security.py::test_x_frame_options_header - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpwsd1neeu\\catalog.sqlite'
+ERROR tests/test_security.py::test_authenticated_response_not_cached - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvjiw1ci5\\catalog.sqlite'
+ERROR tests/test_security.py::test_cross_site_post_rejected - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpy286lp0p\\catalog.sqlite'
+ERROR tests/test_security.py::test_same_origin_post_allowed - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp11c11st2\\catalog.sqlite'
+ERROR tests/test_security.py::test_cross_origin_allowlist - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3f_46xk1\\catalog.sqlite'
+ERROR tests/test_security.py::test_query_string_tokens_ignored - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpg640se_3\\catalog.sqlite'
+ERROR tests/test_security.py::test_referer_origin_fallback - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp0bczekkr\\catalog.sqlite'
+ERROR tests/test_security.py::test_missing_origin_unsafe_method_rejected - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpeqlvg34v\\catalog.sqlite'
+ERROR tests/test_security.py::test_get_requests_not_origin_checked - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpwdrme3ni\\catalog.sqlite'
+ERROR tests/test_security.py::test_safe_methods_no_origin_required - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp3ik_5q_m\\catalog.sqlite'
+ERROR tests/test_serialization.py::test_json_encoder_uuid - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpewd7499m\\catalog.sqlite'
+ERROR tests/test_serialization.py::test_json_encoder_datetime - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmp86oxgd9q\\catalog.sqlite'
+ERROR tests/test_serialization.py::test_payload_too_large_handler_invoked - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpexnvb3cj\\catalog.sqlite'
+ERROR tests/test_serialization.py::test_uuid_in_response - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvctzs4e6\\catalog.sqlite'
+ERROR tests/test_serialization.py::test_datetime_in_response - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpvsp4jp14\\catalog.sqlite'
+ERROR tests/test_serialization.py::test_unknown_api_path_returns_json_404 - PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\williams\\AppData\\Local\\Temp\\tmpn5pnl5vx\\catalog.sqlite'
+===== 45 failed, 347 passed, 14 skipped, 3 warnings, 46 errors in 17.42s ======

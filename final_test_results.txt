@@ -1,0 +1,44 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.2.0, pluggy-1.7.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\williams\git\litfoundry
+configfile: pyproject.toml
+plugins: anyio-4.13.0, platformdirs-4.14.0, cov-7.1.0, flask-1.3.0, httpx-0.36.2, xdist-3.8.0
+collecting ... collected 25 items
+
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_users_table_exists_with_columns PASSED [  4%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_auth_settings_table_exists PASSED [  8%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_login_throttle_table_exists PASSED [ 12%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_refresh_tokens_table_exists PASSED [ 16%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_bootstrap_tokens_table_exists PASSED [ 20%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_audit_events_table_exists PASSED [ 24%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_local_username_uniqueness_index PASSED [ 28%]
+tests/test_identity_schema.py::TestIdentitySchemaMigration::test_admin_role_uniqueness_constraint PASSED [ 32%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_has_correct_name PASSED [ 36%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_with_valid_password PASSED [ 40%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_case_insensitive PASSED [ 44%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_wrong_password PASSED [ 48%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_credentials_unknown_user PASSED [ 52%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_timing_equalization PASSED [ 56%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_verify_inactive_user PASSED [ 60%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_change_password PASSED [ 64%]
+tests/test_identity_schema.py::TestIdentityProviderInterface::test_local_provider_change_password_validation PASSED [ 68%]
+tests/test_identity_schema.py::TestCreateUserWithPassword::test_create_user_with_password PASSED [ 72%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_generate_token PASSED [ 76%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_hash_and_verify_token PASSED [ 80%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_token_expiry_time PASSED [ 84%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_token_expiry_check PASSED [ 88%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_write_token_file PASSED [ 92%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenGeneration::test_delete_token_file PASSED [ 96%]
+tests/test_bootstrap_flow.py::TestBootstrapTokenCommands::test_bootstrap_token_generation PASSED [100%]
+
+============================== warnings summary ===============================
+..\..\AppData\Roaming\Python\Python314\site-packages\anyio\pytest_plugin.py:14
+  C:\Users\williams\AppData\Roaming\Python\Python314\site-packages\anyio\pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 25 passed, 1 warning in 1.43s ========================
